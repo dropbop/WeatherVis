@@ -56,9 +56,9 @@
 
     <div class="divider"></div>
 
-    <!-- Chart 2: Ridgeline by Year (2020–2025) -->
+    <!-- Chart 2: Ridgeline by Year -->
     <section>
-      <h2>Ridgeline — Daily Mean Temperature by Day‑of‑Year (2020–2025)</h2>
+      <h2 id="ridgeTitle">Ridgeline — Daily Mean Temperature by Day‑of‑Year</h2>
       <div class="note">
         Canonical DOY axis (1–366). Non‑leap years have <code>null</code> at DOY 60 (Feb 29) so unified hover lines up across years.
         Gaps are shown explicitly (no fill painted over missing data).
@@ -84,9 +84,9 @@
 
         <div class="group">
           <label for="yearStart"><strong>Years:</strong></label>
-          <input id="yearStart" type="number" value="2020" step="1">
+          <input id="yearStart" type="number" step="1">
           <span>to</span>
-          <input id="yearEnd" type="number" value="2025" step="1">
+          <input id="yearEnd" type="number" step="1">
         </div>
 
         <div class="summary-actions">
@@ -165,6 +165,12 @@
       const startCandidate = (maxDate >= DEFAULT_START) ? DEFAULT_START : minDate;
       const initialStart = (minDate > startCandidate) ? minDate : startCandidate;
 
+      // Derive years present in the dataset
+      const years = [...new Set(data.dates.map(ds => Number(ds.slice(0,4))))].sort((a,b) => a - b);
+      window.yearList = years;
+      document.getElementById("yearStart").value = years[0];
+      document.getElementById("yearEnd").value = years[years.length - 1];
+
       const hoverDates = data.dates.map(formatDateOrdinal);
 
       const traceMax = {
@@ -206,7 +212,10 @@
       Plotly.newPlot("chart", [traceMax, traceMin], layout1, { responsive: true, displaylogo: false });
 
       // ---------- Chart 2: Ridgeline ----------
-      buildRidgelineCanonical(data);
+      buildRidgelineCanonical(data, years);
+
+      // Initial summary render after years are set
+      renderSummary();
     }).catch(err => {
       document.getElementById("chart").innerHTML =
         `<div style="padding:1rem;color:crimson">
@@ -215,9 +224,8 @@
          </div>`;
     });
 
-    function buildRidgelineCanonical(data) {
-      const YEARS  = [2020, 2021, 2022, 2023, 2024, 2025];
-      const COLORS = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b'];
+    function buildRidgelineCanonical(data, years) {
+      const COLORS = years.map((_, i) => `hsl(${(i * 360 / years.length)}, 65%, 45%)`);
       const DOY = Array.from({ length: 366 }, (_, i) => i + 1);
 
       function yearSeries(year) {
@@ -249,7 +257,7 @@
 
       const perYear = new Map();
       let gmin = +Infinity, gmax = -Infinity;
-      for (const yr of YEARS) {
+      for (const yr of years) {
         const obj = yearSeries(yr);
         perYear.set(yr, obj);
         for (const v of obj.yVals) {
@@ -259,14 +267,16 @@
         }
       }
       if (!isFinite(gmin) || !isFinite(gmax)) {
-        document.getElementById("ridge").innerHTML = `<div class="note">No data for 2020–2025.</div>`;
+        document.getElementById("ridge").innerHTML = `<div class="note">No data for ${years[0]}–${years[years.length-1]}.` + `</div>`;
         return;
       }
+
+      document.getElementById("ridgeTitle").textContent = `Ridgeline — Daily Mean Temperature by Day‑of‑Year (${years[0]}–${years[years.length-1]})`;
 
       const GAP = 30, SCALE = 0.25;
       const traces = [];
 
-      YEARS.forEach((yr, idx) => {
+      years.forEach((yr, idx) => {
         const baseY = idx * GAP;
         const { yVals, hover } = perYear.get(yr);
         const yRidge = yVals.map(v => (v === null ? null : (v - gmin) * SCALE + baseY));
@@ -317,12 +327,12 @@
       });
 
       const layout2 = {
-        title: { text: "Ridgeline — Daily Mean Temperature by Day‑of‑Year (2020–2025)", x: 0, xanchor: "left" },
+        title: { text: `Ridgeline — Daily Mean Temperature by Day‑of‑Year (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left" },
         margin: { t: 60, r: 20, b: 40, l: 60 },
         xaxis: { title: "Day of Year", range: [1, 366], tickmode: "array", tickvals: MONTH_TICKS, ticktext: MONTH_TEXT },
         yaxis: { title: "", zeroline: false, showgrid: true,
-                 tickmode: "array", tickvals: [0,1,2,3,4,5].map(i=>i*30),
-                 ticktext: ["2020","2021","2022","2023","2024","2025"] },
+                 tickmode: "array", tickvals: years.map((_, i) => i * GAP),
+                 ticktext: years.map(String) },
         hovermode: "x unified",
         hoverdistance: 1,
         legend: { orientation: "h", x: 1, y: 1.12, xanchor: "right", yanchor: "bottom" }
@@ -343,8 +353,8 @@
 
     async function loadSummary() {
       const metric = getSelectedMetric();
-      const start = Number(document.getElementById("yearStart").value || 2020);
-      const end   = Number(document.getElementById("yearEnd").value   || 2025);
+      const start = Number(document.getElementById("yearStart").value || (window.yearList ? window.yearList[0] : 0));
+      const end   = Number(document.getElementById("yearEnd").value   || (window.yearList ? window.yearList[window.yearList.length - 1] : 0));
       const url = `/api/summary?metric=${encodeURIComponent(metric)}&start=${start}&end=${end}`;
       const resp = await fetch(url, { cache: "no-store" });
       if (!resp.ok) throw new Error(`Failed to load summary (${resp.status})`);
@@ -418,8 +428,6 @@
       downloadCSV("summary.csv", rows);
     });
 
-    // Initial render
-    renderSummary();
   </script>
 </body>
 </html>
