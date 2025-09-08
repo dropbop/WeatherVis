@@ -1,5 +1,3 @@
-# C:\Users\jht41821\OneDrive - INEOS USA LLC\__Python\Weather\app.py
-
 import os
 import shutil
 from functools import lru_cache
