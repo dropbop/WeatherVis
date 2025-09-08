@@ -176,6 +176,7 @@ def _load_df_fahrenheit():
     tmax_raw = tmax_raw.mask((tmax_raw <= -9990) | (tmax_raw >= 9990), np.nan)
     tmin_raw = tmin_raw.mask((tmin_raw <= -9990) | (tmin_raw >= 9990), np.nan)
     # Recompute max after masking to avoid double conversion when Fahrenheit values are present
+#main
     max_abs = np.nanmax([tmax_raw.abs().max(), tmin_raw.abs().max()])
     if max_abs > 200:
         df["TMAX_F"] = _tenths_to_f(tmax_raw)
