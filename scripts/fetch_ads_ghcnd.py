@@ -2,7 +2,7 @@
 import os, sys, time, csv, io, datetime, requests
 
 BASE = "https://www.ncei.noaa.gov/access/services/data/v1"
-STATION = "GHCND:USW00012918"  # Hobby
+STATION = "USW00012918"  # Hobby
 START_YEAR = 1990
 UNITS = "standard"  # "metric" for SI
 
