@@ -27,6 +27,19 @@
     tmin.push(tminF);
   }
 
+  // ---------- Theme constants (Retro Meteorology) ----------
+  const THEME = {
+    paper: '#fdfcf8',
+    panelBg: '#fdfcf8',
+    grid: '#d4cfc0',
+    brown: '#5c4033',
+    olive: '#6b7334',
+    orange: '#cc5500',
+    gold: '#daa520',
+    fontBody: 'Courier Prime, \'Courier New\', Courier, monospace',
+    fontTitle: 'Bebas Neue, Oswald, sans-serif'
+  };
+
   // ---------- Chart 1: Daily Max/Min ----------
   const hoverDates = dates.map(ds => formatDateOrdinal(ds));
   const minDate = dates[0];
@@ -39,28 +52,29 @@
   updateDataStatus(minDate, maxDate);
 
   const traceMax = {
-    type: "scattergl", mode: "lines", name: "TMAX (°F)",
+    type: "scatter", mode: "lines", name: "MAX TEMP (°F)",
     x: dates, y: tmax, customdata: hoverDates,
-    line: { color: "#d62728", width: 1.8 }, connectgaps: false,
+    line: { color: THEME.orange, width: 2, shape: 'spline' }, connectgaps: false,
     hovertemplate: "%{customdata}<br>TMAX: %{y:.1f}°F<extra></extra>"
   };
   const traceMin = {
-    type: "scattergl", mode: "lines", name: "TMIN (°F)",
+    type: "scatter", mode: "lines", name: "MIN TEMP (°F)",
     x: dates, y: tmin, customdata: hoverDates,
-    line: { color: "#1f77b4", width: 1.8 }, connectgaps: false,
+    line: { color: THEME.olive, width: 2, shape: 'spline', dash: 'dot' }, connectgaps: false,
     hovertemplate: "%{customdata}<br>TMIN: %{y:.1f}°F<extra></extra>"
   };
   const layout1 = {
     uirevision: "keep",
-    title: { text: "USW00012918 — Daily Max/Min Temperature (°F)", x: 0, xanchor: "left" },
-    font: { color: "#0f172a" },
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "#ffffff",
-    legend: { orientation: "h", x: 1, y: 1.15, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.8)", borderwidth: 0 },
+    title: { text: "DAILY TEMPERATURE RANGE (°F)", x: 0, xanchor: "left", font: { family: THEME.fontTitle, size: 24, color: THEME.brown } },
+    font: { color: THEME.brown, family: THEME.fontBody },
+    paper_bgcolor: THEME.paper,
+    plot_bgcolor: THEME.panelBg,
+    legend: { orientation: "h", x: 1, y: 1.12, xanchor: "right", yanchor: "bottom", bgcolor: THEME.paper, bordercolor: THEME.brown, borderwidth: 2 },
     margin: { t: 60, r: 20, b: 60, l: 60 },
-    xaxis: { type: "date", title: "Date", autorange: false, range: [initialStart, maxDate], gridcolor: "rgba(15,23,42,0.08)", zeroline: false, rangeslider: { visible: true, range: [minDate, maxDate] } },
-    yaxis: { title: "Temperature (°F)", tickformat: ".1f", ticksuffix: "°F", zeroline: false, gridcolor: "rgba(15,23,42,0.08)" },
-    hovermode: "x unified",
+    xaxis: { type: "date", title: "DATE", autorange: false, range: [initialStart, maxDate], gridcolor: THEME.grid, zeroline: false,
+      rangeslider: { visible: true, range: [minDate, maxDate], bgcolor: '#f4f1e8', bordercolor: THEME.olive, borderwidth: 2 } },
+    yaxis: { title: "TEMPERATURE (°F)", tickformat: ".1f", zeroline: false, gridcolor: THEME.grid, linecolor: THEME.brown, mirror: true },
+    hovermode: "x unified", hoverlabel: { bgcolor: THEME.paper, bordercolor: THEME.brown, font: { family: THEME.fontBody, size: 11 } },
     updatemenus: [{ type: "buttons", direction: "right", x: 0, y: 1.22, xanchor: "left", yanchor: "bottom", pad: { r: 6, t: 0, b: 0, l: 0 }, showactive: false,
       buttons: [
         { label: "Default", method: "relayout", args: [ { "xaxis.range": [initialStart, maxDate] } ] },
@@ -166,7 +180,15 @@ function isLeap(year) {
 }
 
 function buildRidgelineCanonical(dates, tmax, tmin, years) {
-  const COLORS = years.map((_, i) => `hsl(${(i * 360 / years.length)}, 65%, 45%)`);
+  // Create an olive→burnt-orange gradient across years
+  function interpHex(c1, c2, t) {
+    const a = parseInt(c1.slice(1), 16), b = parseInt(c2.slice(1), 16);
+    const ar=(a>>16)&255, ag=(a>>8)&255, ab=a&255;
+    const br=(b>>16)&255, bg=(b>>8)&255, bb=b&255;
+    const r=Math.round(ar+(br-ar)*t), g=Math.round(ag+(bg-ag)*t), bl=Math.round(ab+(bb-ab)*t);
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bl.toString(16).padStart(2,'0')}`;
+  }
+  const COLORS = years.map((_, i) => interpHex('#6b7334', '#cc5500', years.length === 1 ? 0.5 : i/(years.length-1)));
   const DOY = Array.from({ length: 366 }, (_, i) => i + 1);
 
   function meanF(v1, v2) {
@@ -207,7 +229,7 @@ function buildRidgelineCanonical(dates, tmax, tmin, years) {
     return;
   }
 
-  document.getElementById("ridgeTitle").textContent = `Ridgeline — Daily Mean Temperature by Day‑of‑Year (${years[0]}–${years[years.length-1]})`;
+  document.getElementById("ridgeTitle").textContent = `RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR (${years[0]}–${years[years.length-1]})`;
 
   const GAP = 30, SCALE = 0.25;
   const traces = [];
@@ -248,14 +270,14 @@ function buildRidgelineCanonical(dates, tmax, tmin, years) {
   });
 
   const layout2 = {
-    title: { text: `Ridgeline — Daily Mean Temperature by Day‑of‑Year (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left" },
-    font: { color: "#0f172a" },
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "#ffffff",
+    title: { text: `RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left", font: { family: THEME.fontTitle, size: 20, color: THEME.brown } },
+    font: { color: THEME.brown, family: THEME.fontBody },
+    paper_bgcolor: THEME.paper,
+    plot_bgcolor: THEME.panelBg,
     margin: { t: 60, r: 20, b: 40, l: 60 },
-    xaxis: { title: "Day of Year", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], gridcolor: "rgba(15,23,42,0.08)", zeroline: false },
-    yaxis: { title: "", zeroline: false, showgrid: true, gridcolor: "rgba(15,23,42,0.08)", tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String) },
-    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.12, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.8)", borderwidth: 0 }
+    xaxis: { title: "DAY OF YEAR", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], gridcolor: THEME.grid, zeroline: false, linecolor: THEME.brown, mirror: true },
+    yaxis: { title: "", zeroline: false, showgrid: true, gridcolor: THEME.grid, tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String), linecolor: THEME.brown, mirror: true },
+    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.08, xanchor: "right", yanchor: "bottom", bgcolor: THEME.paper, bordercolor: THEME.brown, borderwidth: 2 }
   };
   Plotly.newPlot("ridge", traces, layout2, { responsive: true, displaylogo: false });
 }
@@ -311,7 +333,17 @@ async function renderSummary(stats) {
   const { rows } = getSummaryRows(stats);
   const gridColumns = [ { id: "year", name: "Year", sort: true }, ...monthNames.map(m => ({ id: m, name: m, sort: true, formatter: (cell) => (cell == null ? "—" : Number(cell).toFixed(1)) })) ];
   if (!grid) {
-    grid = new gridjs.Grid({ columns: gridColumns, data: rows, sort: true, search: false, pagination: false, fixedHeader: true, style: { table: { 'font-size': '0.95rem' } } });
+    grid = new gridjs.Grid({
+      columns: gridColumns,
+      data: rows,
+      sort: true,
+      search: false,
+      pagination: false,
+      fixedHeader: true,
+      className: {
+        table: 'data-table',
+      }
+    });
     grid.render(document.getElementById("summary-grid"));
   } else {
     grid.updateConfig({ data: rows }).forceRender();

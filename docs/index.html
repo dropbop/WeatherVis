@@ -1,84 +1,378 @@
 <!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HOU (USW00012918) — GHCN‑Daily</title>
-<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
-<style>
-  :root {
-    color-scheme: light dark;
-    --bg: #f7f8fb;
-    --card-bg: #ffffff;
-    --text: #0f172a;
-    --muted: #6b7280;
-    --radius: 12px;
-    --shadow: 0 6px 20px rgba(0,0,0,.06);
-  }
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; line-height: 1.35; background: var(--bg); color: var(--text); }
-  .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
-  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.9rem 1.1rem; margin: 1rem 0; }
-  #chart { width: 100%; height: 64vh; max-height: 900px; }
-  #ridge { width: 100%; height: 62vh; max-height: 850px; }
-  .note { color: var(--muted); font-size: .92rem; }
-  /* Summary controls & table */
-  .summary-wrap { padding: 0.5rem 0.2rem 0.8rem; }
-  .summary-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 0.4rem 0 0.6rem; }
-  .summary-controls .group { display: flex; align-items: center; gap: 0.5rem; }
-  .summary-controls label { font-size: 0.95rem; }
-  .summary-controls .metric label { margin-right: 0.75rem; }
-  .summary-controls input[type="number"] { width: 6rem; padding: 0.25rem 0.4rem; }
-  .summary-actions { margin-left: auto; display: flex; gap: 0.5rem; }
-  #summary-grid { width: 100%; }
-  button { padding: 0.35rem 0.6rem; }
-  h2 { margin: 0.5rem 0 0.25rem; }
-  h1 { margin: .3rem 0; }
-  
-</style>
-<div class="container">
-  <header class="card">
-    <h1>HOU (USW00012918) — GHCN‑Daily, 1990→present</h1>
-    <div class="note">Data source: NCEI ADS daily‑summaries. Updated daily via GitHub Actions.</div>
-    <div id="dataStatus" class="note"></div>
-  </header>
-
-  <div class="card">
-    <!-- Chart 1: Daily Max/Min time-series -->
-    <div id="chart"></div>
-  </div>
-
-  <!-- Chart 2: Ridgeline (Daily Mean by Day-of-Year) -->
-  <section class="card">
-    <h2 id="ridgeTitle">Ridgeline — Daily Mean Temperature by Day‑of‑Year</h2>
-    <div class="note">Canonical DOY axis (1–366); gaps shown explicitly.</div>
-    <div id="ridge"></div>
-  </section>
-
-  <!-- Monthly summary table -->
-  <section class="card summary-wrap">
-    <h2>Monthly Summary by Year</h2>
-    <div class="note">Select a metric and year range. Values in °F (1 decimal).</div>
-    <div class="summary-controls">
-      <div class="group metric">
-        <label><strong>Metric:</strong></label>
-        <label><input type="radio" name="metric" value="avg_tmax" checked> Avg TMAX</label>
-        <label><input type="radio" name="metric" value="avg_tmin"> Avg TMIN</label>
-        <label><input type="radio" name="metric" value="rec_tmax"> Record TMAX</label>
-        <label><input type="radio" name="metric" value="rec_tmin"> Record TMIN</label>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HOUSTON WEATHER STATION — USW00012918</title>
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Oswald:wght@500&display=swap');
+    
+    :root {
+      --bg: #f4f1e8;
+      --paper: #fdfcf8;
+      --burnt-orange: #cc5500;
+      --olive: #6b7334;
+      --brown: #5c4033;
+      --cream: #fff8dc;
+      --gold: #daa520;
+      --rust: #b7410e;
+      --text: #2c2416;
+      --grid: #d4cfc0;
+      --amber: #ffbf00;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: 
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          #00000003 10px,
+          #00000003 20px
+        ),
+        linear-gradient(180deg, var(--bg) 0%, #e8e2d0 100%);
+      color: var(--text);
+      padding: 20px;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 2px 2px, #00000008 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .header {
+      background: var(--paper);
+      border: 3px solid var(--brown);
+      padding: 30px;
+      position: relative;
+      margin-bottom: 30px;
+      box-shadow: 
+        5px 5px 0 #00000010,
+        10px 10px 0 #00000008;
+    }
+    
+    .header::before {
+      content: "FORM WB-1247";
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 10px;
+      color: var(--olive);
+      letter-spacing: 2px;
+    }
+    
+    .header::after {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      background: 
+        radial-gradient(circle at center, transparent 40%, var(--burnt-orange) 42%, var(--burnt-orange) 48%, transparent 50%),
+        conic-gradient(from 0deg, var(--burnt-orange), var(--gold), var(--burnt-orange));
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+    
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      color: var(--burnt-orange);
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 0 #00000015;
+    }
+    
+    .station-info {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--olive);
+      border-top: 2px solid var(--grid);
+      border-bottom: 2px solid var(--grid);
+      padding: 10px 0;
+      margin-top: 20px;
+    }
+    
+    .panel {
+      background: var(--paper);
+      border: 2px solid var(--olive);
+      padding: 25px;
+      margin-bottom: 25px;
+      position: relative;
+      box-shadow: 4px 4px 0 #00000008;
+    }
+    
+    .panel-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 20px;
+      color: var(--brown);
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--grid);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .panel-title::before {
+      content: "▶";
+      color: var(--burnt-orange);
+    }
+    
+    .chart-container {
+      width: 100%;
+      position: relative;
+      background: 
+        linear-gradient(90deg, #d4cfc010 1px, transparent 1px),
+        linear-gradient(180deg, #d4cfc010 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 10px;
+      min-height: 350px;
+    }
+    
+    .stamp {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border: 3px solid var(--rust);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-15deg);
+      opacity: 0.3;
+      font-size: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: var(--cream);
+      border: 1px dashed var(--olive);
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .control-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--olive);
+    }
+    
+    .control-group select,
+    .control-group input {
+      padding: 5px 10px;
+      border: 2px solid var(--olive);
+      background: var(--paper);
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--brown);
+    }
+    
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed var(--grid);
+      font-size: 11px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .legend-box {
+      width: 20px;
+      height: 12px;
+      border: 1px solid var(--brown);
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding: 20px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--olive);
+      letter-spacing: 2px;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: var(--paper);
+      border: 2px solid var(--brown);
+      padding: 8px 12px;
+      font-size: 11px;
+      pointer-events: none;
+      opacity: 0;
+      box-shadow: 3px 3px 0 #00000020;
+      z-index: 1000;
+    }
+    
+    .interactive-note {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--amber);
+      color: var(--brown);
+      padding: 3px 8px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      transform: rotate(2deg);
+      box-shadow: 2px 2px 0 #00000010;
+    }
+    
+    /* Retro data table styles from STYLE.md */
+    .data-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+      width: 100%;
+      background: var(--paper);
+      color: var(--brown);
+    }
+    .data-table thead {
+      background: var(--olive);
+      color: var(--cream);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .data-table th, .data-table td {
+      padding: 6px 8px;
+    }
+    .data-table td {
+      border-bottom: 1px dashed var(--grid);
+      border-right: 1px solid #00000010;
+    }
+    .data-table tbody tr:nth-child(even) {
+      background: #00000005;
+    }
+    /* Remove smooth transitions per design principles */
+    * { transition: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>HOUSTON WEATHER STATION</h1>
+      <div class="station-info">
+        USW00012918 ◆ WILLIAM P. HOBBY AIRPORT ◆ GHCN‑DAILY 1990 → PRESENT
       </div>
-      <div class="group">
-        <label for="yearStart"><strong>Years:</strong></label>
-        <input id="yearStart" type="number" step="1">
-        <span>to</span>
-        <input id="yearEnd" type="number" step="1">
-      </div>
-      <div class="summary-actions">
-        <button id="btnApply">Apply</button>
-        <button id="btnDownload">Download CSV</button>
-      </div>
+      <div id="dataStatus" class="station-info" style="border:none; margin-top:10px;"></div>
+      <div class="stamp">VERIFIED<br>NOAA<br>1974</div>
     </div>
-    <div id="summary-grid"></div>
-  </section>
-</div>
-<script src="./assets/main.js"></script>
+
+    <!-- Panel: Time Series -->
+    <div class="panel">
+      <div class="panel-title">TEMPERATURE ANALYSIS — DAILY MAX/MIN</div>
+      <div class="interactive-note">HOVER FOR DETAILS</div>
+      <div id="chart" class="chart-container"></div>
+    </div>
+
+    <!-- Panel: Ridgeline -->
+    <div class="panel">
+      <div class="panel-title" id="ridgeTitle">RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR</div>
+      <div class="interactive-note">CANONICAL DOY AXIS</div>
+      <div id="ridge" class="chart-container"></div>
+    </div>
+
+    <!-- Panel: Monthly Summary -->
+    <div class="panel">
+      <div class="panel-title">MONTHLY SUMMARY BY YEAR</div>
+      <div class="controls">
+        <div class="control-group" style="min-width:240px">
+          <label>Metric</label>
+          <div>
+            <label><input type="radio" name="metric" value="avg_tmax" checked> Avg TMAX</label>
+            <label style="margin-left:10px;"><input type="radio" name="metric" value="avg_tmin"> Avg TMIN</label>
+            <label style="margin-left:10px;"><input type="radio" name="metric" value="rec_tmax"> Record TMAX</label>
+            <label style="margin-left:10px;"><input type="radio" name="metric" value="rec_tmin"> Record TMIN</label>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>Year Start</label>
+          <input id="yearStart" type="number" step="1">
+        </div>
+        <div class="control-group">
+          <label>Year End</label>
+          <input id="yearEnd" type="number" step="1">
+        </div>
+        <div class="control-group" style="justify-content:flex-end;">
+          <label>&nbsp;</label>
+          <div>
+            <button id="btnApply">APPLY</button>
+            <button id="btnDownload">DOWNLOAD CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="summary-grid"></div>
+    </div>
+
+    <div class="footer">
+      NATIONAL WEATHER SERVICE ◆ FORECAST OFFICE HOUSTON/GALVESTON ◆ UPDATED DAILY VIA GITHUB ACTIONS
+    </div>
+  </div>
+  <script src="./assets/main.js"></script>
+</body>
+</html>
