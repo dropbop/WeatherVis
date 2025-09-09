@@ -4,17 +4,73 @@
 <title>HOU (USW00012918) — GHCN‑Daily</title>
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
 <style>
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
-  header, main { padding: 0.75rem 1rem; }
-  #chart { width: 100%; height: 78vh; }
-  .note { opacity: .8; font-size: .9rem; }
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; line-height: 1.35; }
+  header, main, section { padding: 0.75rem 1rem; }
+  #chart { width: 100%; height: 78vh; max-height: 1000px; }
+  #ridge { width: 100%; height: 72vh; max-height: 900px; }
+  .note { opacity: .85; font-size: .9rem; }
+  .divider { height: 1px; background: #ccc; margin: 0.75rem 0; opacity: 0.3; }
+  /* Summary controls & table */
+  .summary-wrap { padding: 0.75rem 1rem 1.25rem; }
+  .summary-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 0.5rem; }
+  .summary-controls .group { display: flex; align-items: center; gap: 0.5rem; }
+  .summary-controls label { font-size: 0.95rem; }
+  .summary-controls .metric label { margin-right: 0.75rem; }
+  .summary-controls input[type="number"] { width: 6rem; padding: 0.25rem 0.4rem; }
+  .summary-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+  #summary-grid { width: 100%; }
+  button { padding: 0.35rem 0.6rem; }
+  h2 { margin: 0.5rem 0 0.25rem; }
+  h1 { margin: .3rem 0; }
+  
 </style>
 <header>
-  <h1 style="margin:.2rem 0">HOU (USW00012918) — GHCN‑Daily, 1990→present</h1>
-  <div class="note">Data source: NCEI Access Data Service daily‑summaries (tokenless). File updated daily by GitHub Action.</div>
+  <h1>HOU (USW00012918) — GHCN‑Daily, 1990→present</h1>
+  <div class="note">Data source: NCEI ADS daily‑summaries. Updated daily via GitHub Actions.</div>
 </header>
 <main>
+  <!-- Chart 1: Daily Max/Min time-series -->
   <div id="chart"></div>
+
+  <div class="divider"></div>
+
+  <!-- Chart 2: Ridgeline (Daily Mean by Day-of-Year) -->
+  <section>
+    <h2 id="ridgeTitle">Ridgeline — Daily Mean Temperature by Day‑of‑Year</h2>
+    <div class="note">Canonical DOY axis (1–366); gaps shown explicitly.</div>
+    <div id="ridge"></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Monthly summary table -->
+  <section class="summary-wrap">
+    <h2>Monthly Summary by Year</h2>
+    <div class="note">Select a metric and year range. Values in °F (1 decimal).</div>
+    <div class="summary-controls">
+      <div class="group metric">
+        <label><strong>Metric:</strong></label>
+        <label><input type="radio" name="metric" value="avg_tmax" checked> Avg TMAX</label>
+        <label><input type="radio" name="metric" value="avg_tmin"> Avg TMIN</label>
+        <label><input type="radio" name="metric" value="rec_tmax"> Record TMAX</label>
+        <label><input type="radio" name="metric" value="rec_tmin"> Record TMIN</label>
+      </div>
+      <div class="group">
+        <label for="yearStart"><strong>Years:</strong></label>
+        <input id="yearStart" type="number" step="1">
+        <span>to</span>
+        <input id="yearEnd" type="number" step="1">
+      </div>
+      <div class="summary-actions">
+        <button id="btnApply">Apply</button>
+        <button id="btnDownload">Download CSV</button>
+      </div>
+    </div>
+    <div id="summary-grid"></div>
+  </section>
 </main>
 <script src="./assets/main.js"></script>
