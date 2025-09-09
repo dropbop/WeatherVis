@@ -814,27 +814,27 @@
     });
 
     // Wind Rose
-          const windData = [];
-      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
-                          'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-      const speeds = ['0-5', '5-10', '10-15', '15-20', '20+'];
-      
-      directions.forEach(dir => {
-        speeds.forEach(speed => {
-          windData.push({
-            r: [Math.random() * 10 + 2],
-            theta: [dir],
-            name: speed + ' mph',
-            marker: { color: speed === '0-5' ? '#6b7334' : 
-                            speed === '5-10' ? '#daa520' : 
-                            speed === '10-15' ? '#cc5500' : 
-                            speed === '15-20' ? '#b7410e' : '#5c4033' },
-            type: 'barpolar'
-          });
+    const windData = [];
+    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+                        'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    const speeds = ['0-5', '5-10', '10-15', '15-20', '20+'];
+    
+    directions.forEach(dir => {
+      speeds.forEach(speed => {
+        windData.push({
+          r: [Math.random() * 10 + 2],
+          theta: [dir],
+          name: speed + ' mph',
+          marker: { color: speed === '0-5' ? '#6b7334' : 
+                          speed === '5-10' ? '#daa520' : 
+                          speed === '10-15' ? '#cc5500' : 
+                          speed === '15-20' ? '#b7410e' : '#5c4033' },
+          type: 'barpolar'
         });
       });
+    });
 
-      const windLayout = {
+    const windLayout = {
       title: {
         text: 'WIND SPEED AND DIRECTION',
         font: { family: 'Bebas Neue', size: 20, color: '#5c4033' }
