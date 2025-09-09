@@ -38,9 +38,9 @@ def write_merged_csv(chunks: list[str]) -> tuple[int, str | None, str | None]:
     # Build a superset header first
     headers_set = set()
     parsed_rows = []
-    row_count = 0
-    min_date: str | None = None
-    max_date: str | None = None
+    row_count_actual = 0  # rows returned by ADS
+    min_date_actual: str | None = None
+    max_date_actual: str | None = None
     for t in chunks:
         s = io.StringIO(t)
         rdr = csv.DictReader(s)
@@ -50,17 +50,42 @@ def write_merged_csv(chunks: list[str]) -> tuple[int, str | None, str | None]:
         for row in rows:
             d = (row.get("DATE") or "").strip()
             if d:
-                min_date = d if (min_date is None or d < min_date) else min_date
-                max_date = d if (max_date is None or d > max_date) else max_date
-        row_count += len(rows)
+                min_date_actual = d if (min_date_actual is None or d < min_date_actual) else min_date_actual
+                max_date_actual = d if (max_date_actual is None or d > max_date_actual) else max_date_actual
+        row_count_actual += len(rows)
     headers = [h for h in sorted(headers_set) if h]  # stable order
     os.makedirs(OUT_DIR, exist_ok=True)
+    # Build a daily index from START_YEAR-01-01 to last available date, padding missing days
+    by_date: dict[str, dict] = {}
+    for rows in parsed_rows:
+        for row in rows:
+            d = (row.get("DATE") or "").strip()
+            if d:
+                by_date[d] = row
+    # Determine output range
+    start_date = datetime.date(START_YEAR, 1, 1)
+    if max_date_actual is None:
+        # No data at all
+        end_date = start_date
+    else:
+        y, m, dd = map(int, max_date_actual.split("-"))
+        end_date = datetime.date(y, m, dd)
+
     with open(OUT_CSV, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=headers)
         w.writeheader()
-        for rows in parsed_rows:
-            for row in rows:
-                w.writerow(row)
+        cur = start_date
+        padded_count = 0
+        written = 0
+        while cur <= end_date:
+            ds = cur.isoformat()
+            row = by_date.get(ds)
+            if row is None:
+                row = {"DATE": ds}
+                padded_count += 1
+            w.writerow(row)
+            written += 1
+            cur += datetime.timedelta(days=1)
     # Write metadata JSON for the site to display
     os.makedirs(DERIVED_DIR, exist_ok=True)
     generated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -68,13 +93,15 @@ def write_merged_csv(chunks: list[str]) -> tuple[int, str | None, str | None]:
         "generatedAt": generated_at,
         "station": STATION,
         "units": UNITS,
-        "startDate": min_date,
-        "endDate": max_date,
-        "rowCount": row_count,
+        "startDate": start_date.isoformat(),
+        "endDate": end_date.isoformat(),
+        "rowCount": written,
+        "rowCountActual": row_count_actual,
+        "paddedDays": padded_count,
     }
     with open(META_JSON, "w", encoding="utf-8") as mf:
         json.dump(meta, mf, ensure_ascii=False, indent=2)
-    return row_count, min_date, max_date
+    return written, start_date.isoformat(), end_date.isoformat()
 
 def main():
     today = datetime.date.today()
