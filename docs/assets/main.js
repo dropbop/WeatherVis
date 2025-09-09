@@ -65,9 +65,17 @@
   // ---------- Chart 2: Ridgeline (client-side) ----------
   const years = [...new Set(dates.map(ds => Number(ds.slice(0,4))))].sort((a,b) => a - b);
   window.yearList = years;
-  document.getElementById("yearStart").value = years[0];
-  document.getElementById("yearEnd").value = years[years.length - 1];
-  buildRidgelineCanonical(dates, tmax, tmin, years);
+  // Ridgeline default: show only 2020–2025 (clamped to available data)
+  const DESIRED_RIDGE_START = 2020;
+  const DESIRED_RIDGE_END = 2025;
+  const clampStart = Math.max(DESIRED_RIDGE_START, years[0] ?? DESIRED_RIDGE_START);
+  const clampEnd = Math.min(DESIRED_RIDGE_END, years[years.length - 1] ?? DESIRED_RIDGE_END);
+  const hasOverlap = clampStart <= clampEnd;
+  const ridgeYears = hasOverlap ? years.filter(y => y >= clampStart && y <= clampEnd) : years.slice();
+  // Also preset summary year inputs to the same default range
+  document.getElementById("yearStart").value = hasOverlap ? clampStart : years[0];
+  document.getElementById("yearEnd").value = hasOverlap ? clampEnd : years[years.length - 1];
+  buildRidgelineCanonical(dates, tmax, tmin, ridgeYears);
 
   // ---------- Monthly summary (client-side) ----------
   const monthStats = precomputeMonthlyStats(dates, tmax, tmin);
