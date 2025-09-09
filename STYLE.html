@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weather Station USW00012918 - Interactive Report</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Oswald:wght@500&display=swap');
+  
+  :root {
+    --bg: #f4f1e8;
+    --paper: #fdfcf8;
+    --burnt-orange: #cc5500;
+    --olive: #6b7334;
+    --brown: #5c4033;
+    --cream: #fff8dc;
+    --gold: #daa520;
+    --rust: #b7410e;
+    --text: #2c2416;
+    --grid: #d4cfc0;
+    --amber: #ffbf00;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    background: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        #00000003 10px,
+        #00000003 20px
+      ),
+      linear-gradient(180deg, var(--bg) 0%, #e8e2d0 100%);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 2px 2px, #00000008 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header {
+    background: var(--paper);
+    border: 3px solid var(--brown);
+    padding: 30px;
+    position: relative;
+    margin-bottom: 30px;
+    box-shadow: 
+      5px 5px 0 #00000010,
+      10px 10px 0 #00000008;
+  }
+
+  .header::before {
+    content: "FORM WB-1247";
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 10px;
+    color: var(--olive);
+    letter-spacing: 2px;
+  }
+
+  .header::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: 
+      radial-gradient(circle at center, transparent 40%, var(--burnt-orange) 42%, var(--burnt-orange) 48%, transparent 50%),
+      conic-gradient(from 0deg, var(--burnt-orange), var(--gold), var(--burnt-orange));
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--burnt-orange);
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 0 #00000015;
+  }
+
+  .station-info {
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--olive);
+    border-top: 2px solid var(--grid);
+    border-bottom: 2px solid var(--grid);
+    padding: 10px 0;
+    margin-top: 20px;
+  }
+
+  .panel {
+    background: var(--paper);
+    border: 2px solid var(--olive);
+    padding: 25px;
+    margin-bottom: 25px;
+    position: relative;
+    box-shadow: 4px 4px 0 #00000008;
+  }
+
+  .panel-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    color: var(--brown);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--grid);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .panel-title::before {
+    content: "▶";
+    color: var(--burnt-orange);
+  }
+
+  .chart-container {
+    width: 100%;
+    position: relative;
+    background: 
+      linear-gradient(90deg, #d4cfc010 1px, transparent 1px),
+      linear-gradient(180deg, #d4cfc010 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding: 10px;
+    min-height: 350px;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    border: 3px solid var(--rust);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-15deg);
+    opacity: 0.3;
+    font-size: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--rust);
+    letter-spacing: 1px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--cream);
+    border: 1px dashed var(--olive);
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .control-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--olive);
+  }
+
+  .control-group select,
+  .control-group input {
+    padding: 5px 10px;
+    border: 2px solid var(--olive);
+    background: var(--paper);
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    color: var(--brown);
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .grid-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--grid);
+    font-size: 11px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-box {
+    width: 20px;
+    height: 12px;
+    border: 1px solid var(--brown);
+  }
+
+  .footer {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--olive);
+    letter-spacing: 2px;
+  }
+
+  #heatmap-container {
+    height: 400px;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: var(--paper);
+    border: 2px solid var(--brown);
+    padding: 8px 12px;
+    font-size: 11px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    box-shadow: 3px 3px 0 #00000020;
+    z-index: 1000;
+  }
+
+  .stat-card {
+    background: var(--cream);
+    border: 2px solid var(--olive);
+    padding: 15px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--burnt-orange);
+    letter-spacing: 2px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--olive);
+    margin-top: 5px;
+  }
+
+  /* Retro styled scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--grid);
+    border: 1px solid var(--olive);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--olive);
+    border: 1px solid var(--brown);
+  }
+
+  .interactive-note {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--amber);
+    color: var(--brown);
+    padding: 3px 8px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    transform: rotate(2deg);
+    box-shadow: 2px 2px 0 #00000010;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>HOUSTON WEATHER STATION</h1>
+      <div class="station-info">
+        USW00012918 ◆ WILLIAM P. HOBBY AIRPORT ◆ INTERACTIVE CLIMATE DASHBOARD
+      </div>
+      <div class="stamp">VERIFIED<br>NOAA<br>1974</div>
+    </div>
+
+    <!-- Interactive Controls -->
+    <div class="panel">
+      <div class="panel-title">DATA CONTROLS</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>Year Range</label>
+          <select id="yearSelect">
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="all">All Years</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Season</label>
+          <select id="seasonSelect">
+            <option value="all">All Seasons</option>
+            <option value="winter">Winter</option>
+            <option value="spring">Spring</option>
+            <option value="summer">Summer</option>
+            <option value="fall">Fall</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Metric</label>
+          <select id="metricSelect">
+            <option value="temp">Temperature</option>
+            <option value="precip">Precipitation</option>
+            <option value="humidity">Humidity</option>
+            <option value="pressure">Pressure</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="panel">
+      <div class="panel-title">CURRENT CONDITIONS</div>
+      <div class="grid-layout">
+        <div class="stat-card">
+          <div class="stat-value">78°F</div>
+          <div class="stat-label">Current Temperature</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">65%</div>
+          <div class="stat-label">Humidity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">30.12</div>
+          <div class="stat-label">Pressure (in)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">8 mph</div>
+          <div class="stat-label">Wind Speed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Plotly Time Series -->
+    <div class="panel">
+      <div class="panel-title">TEMPERATURE ANALYSIS - 365 DAY RECORD</div>
+      <div class="interactive-note">HOVER FOR DETAILS</div>
+      <div id="plotly-timeseries" class="chart-container"></div>
+    </div>
+
+    <!-- Chart.js Radar Chart -->
+    <div class="panel">
+      <div class="panel-title">MONTHLY CLIMATE PROFILE</div>
+      <div class="interactive-note">CLICK LEGEND TO FILTER</div>
+      <div class="grid-layout">
+        <div class="chart-container">
+          <canvas id="radar-chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="bar-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 Heatmap -->
+    <div class="panel">
+      <div class="panel-title">TEMPERATURE HEATMAP - YEARLY PATTERN</div>
+      <div class="interactive-note">HOVER TO EXPLORE</div>
+      <div id="heatmap-container" class="chart-container"></div>
+      <div class="tooltip" id="heatmap-tooltip"></div>
+    </div>
+
+    <!-- Interactive Scatter Plot -->
+    <div class="panel">
+      <div class="panel-title">TEMPERATURE vs HUMIDITY CORRELATION</div>
+      <div id="scatter-plot" class="chart-container"></div>
+    </div>
+
+    <!-- Wind Rose -->
+    <div class="panel">
+      <div class="panel-title">WIND PATTERNS</div>
+      <div id="wind-rose" class="chart-container"></div>
+    </div>
+
+    <div class="footer">
+      NATIONAL WEATHER SERVICE ◆ FORECAST OFFICE HOUSTON/GALVESTON ◆ UPDATED HOURLY
+    </div>
+  </div>
+
+  <script>
+    // Generate sample data
+    function generateTimeSeriesData() {
+      const dates = [];
+      const temps = [];
+      const minTemps = [];
+      const precip = [];
+      const startDate = new Date(2023, 0, 1);
+      
+      for (let i = 0; i < 365; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        dates.push(date.toISOString().split('T')[0]);
+        
+        // Seasonal variation
+        const dayOfYear = i;
+        const seasonalTemp = 70 + 20 * Math.sin((dayOfYear - 80) * 2 * Math.PI / 365);
+        temps.push(seasonalTemp + Math.random() * 10);
+        minTemps.push(seasonalTemp - 10 + Math.random() * 8);
+        precip.push(Math.max(0, Math.random() * 2 - 1.5) * 3);
+      }
+      
+      return { dates, temps, minTemps, precip };
+    }
+
+    const data = generateTimeSeriesData();
+
+    // Plotly Time Series with retro styling
+    const plotlyTrace1 = {
+      x: data.dates,
+      y: data.temps,
+      type: 'scatter',
+      mode: 'lines',
+      name: 'MAX TEMP',
+      line: {
+        color: '#cc5500',
+        width: 2,
+        shape: 'spline'
+      },
+      fill: 'tonexty',
+      fillcolor: 'rgba(204, 85, 0, 0.1)'
+    };
+
+    const plotlyTrace2 = {
+      x: data.dates,
+      y: data.minTemps,
+      type: 'scatter',
+      mode: 'lines',
+      name: 'MIN TEMP',
+      line: {
+        color: '#6b7334',
+        width: 2,
+        shape: 'spline',
+        dash: 'dot'
+      }
+    };
+
+    const plotlyLayout = {
+      title: {
+        text: 'DAILY TEMPERATURE RANGE (°F)',
+        font: {
+          family: 'Bebas Neue',
+          size: 24,
+          color: '#5c4033'
+        }
+      },
+      paper_bgcolor: '#fdfcf8',
+      plot_bgcolor: '#fdfcf8',
+      font: {
+        family: 'Courier Prime',
+        color: '#5c4033'
+      },
+      xaxis: {
+        title: 'DATE',
+        gridcolor: '#d4cfc0',
+        tickfont: { size: 10 },
+        rangeslider: { 
+          visible: true,
+          bgcolor: '#f4f1e8',
+          bordercolor: '#6b7334',
+          borderwidth: 2
+        }
+      },
+      yaxis: {
+        title: 'TEMPERATURE (°F)',
+        gridcolor: '#d4cfc0',
+        tickfont: { size: 10 }
+      },
+      legend: {
+        bgcolor: '#fff8dc',
+        bordercolor: '#6b7334',
+        borderwidth: 1,
+        font: { size: 11 }
+      },
+      hovermode: 'x unified',
+      hoverlabel: {
+        bgcolor: '#fff8dc',
+        bordercolor: '#5c4033',
+        font: {
+          family: 'Courier Prime',
+          size: 11,
+          color: '#5c4033'
+        }
+      }
+    };
+
+    Plotly.newPlot('plotly-timeseries', [plotlyTrace2, plotlyTrace1], plotlyLayout, {
+      responsive: true,
+      displaylogo: false,
+      modeBarButtonsToRemove: ['lasso2d', 'select2d']
+    });
+
+    // Chart.js Radar Chart with retro colors
+    const radarCtx = document.getElementById('radar-chart').getContext('2d');
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+        datasets: [{
+          label: 'AVG HIGH',
+          data: [62, 66, 73, 79, 86, 91, 94, 95, 89, 81, 72, 64],
+          borderColor: '#cc5500',
+          backgroundColor: 'rgba(204, 85, 0, 0.2)',
+          borderWidth: 2,
+          pointBackgroundColor: '#cc5500',
+          pointBorderColor: '#fff8dc',
+          pointBorderWidth: 2
+        }, {
+          label: 'AVG LOW',
+          data: [42, 46, 53, 59, 67, 73, 75, 75, 70, 60, 51, 44],
+          borderColor: '#6b7334',
+          backgroundColor: 'rgba(107, 115, 52, 0.2)',
+          borderWidth: 2,
+          pointBackgroundColor: '#6b7334',
+          pointBorderColor: '#fff8dc',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                family: 'Courier Prime',
+                size: 11
+              },
+              color: '#5c4033'
+            }
+          }
+        },
+        scales: {
+          r: {
+            angleLines: {
+              color: '#d4cfc0'
+            },
+            grid: {
+              color: '#d4cfc0'
+            },
+            pointLabels: {
+              font: {
+                family: 'Courier Prime',
+                size: 10
+              },
+              color: '#5c4033'
+            },
+            ticks: {
+              font: {
+                size: 9
+              },
+              color: '#6b7334',
+              backdropColor: 'transparent'
+            }
+          }
+        }
+      }
+    });
+
+    // Chart.js Bar Chart
+    const barCtx = document.getElementById('bar-chart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+        datasets: [{
+          label: 'PRECIPITATION (IN)',
+          data: [3.7, 3.0, 3.2, 3.3, 5.0, 5.5, 3.5, 3.7, 4.9, 4.4, 4.1, 3.7],
+          backgroundColor: '#cc5500',
+          borderColor: '#5c4033',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                family: 'Courier Prime',
+                size: 11
+              },
+              color: '#5c4033'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#d4cfc0'
+            },
+            ticks: {
+              font: {
+                family: 'Courier Prime',
+                size: 10
+              },
+              color: '#5c4033'
+            }
+          },
+          x: {
+            grid: {
+              color: '#d4cfc0'
+            },
+            ticks: {
+              font: {
+                family: 'Courier Prime',
+                size: 10
+              },
+              color: '#5c4033'
+            }
+          }
+        }
+      }
+    });
+
+    // D3 Heatmap
+    const margin = {top: 30, right: 30, bottom: 30, left: 50};
+    const width = document.getElementById('heatmap-container').offsetWidth - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
+
+    const svg = d3.select("#heatmap-container")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Generate heatmap data
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const days = d3.range(1, 32);
+    const heatmapData = [];
+
+    months.forEach((month, m) => {
+      days.forEach(day => {
+        const baseTemp = 50 + 30 * Math.sin((m - 1) * Math.PI / 6);
+        const temp = baseTemp + (Math.random() - 0.5) * 20;
+        heatmapData.push({month, day, temp});
+      });
+    });
+
+    const xScale = d3.scaleBand()
+      .range([0, width])
+      .domain(days)
+      .padding(0.01);
+
+    const yScale = d3.scaleBand()
+      .range([height, 0])
+      .domain(months)
+      .padding(0.01);
+
+    const colorScale = d3.scaleSequential()
+      .interpolator(d3.interpolateRgb("#6b7334", "#cc5500"))
+      .domain([30, 100]);
+
+    // Add heatmap cells
+    svg.selectAll()
+      .data(heatmapData)
+      .enter()
+      .append("rect")
+      .attr("x", d => xScale(d.day))
+      .attr("y", d => yScale(d.month))
+      .attr("width", xScale.bandwidth())
+      .attr("height", yScale.bandwidth())
+      .style("fill", d => colorScale(d.temp))
+      .style("stroke", "#fdfcf8")
+      .style("stroke-width", 0.5)
+      .on("mouseover", function(event, d) {
+        const tooltip = document.getElementById('heatmap-tooltip');
+        tooltip.style.opacity = 1;
+        tooltip.style.left = (event.pageX + 10) + 'px';
+        tooltip.style.top = (event.pageY - 28) + 'px';
+        tooltip.innerHTML = `${d.month} ${d.day}: ${d.temp.toFixed(1)}°F`;
+      })
+      .on("mouseout", function() {
+        document.getElementById('heatmap-tooltip').style.opacity = 0;
+      });
+
+    // Add axes
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+      .style("font-family", "Courier Prime")
+      .style("font-size", "10px")
+      .selectAll("text")
+      .style("fill", "#5c4033");
+
+    svg.append("g")
+      .call(d3.axisLeft(yScale))
+      .style("font-family", "Courier Prime")
+      .style("font-size", "10px")
+      .selectAll("text")
+      .style("fill", "#5c4033");
+
+    // Scatter Plot
+    const scatterTrace = {
+      x: data.temps.slice(0, 100),
+      y: data.temps.slice(0, 100).map(t => 40 + (100 - t) * 0.5 + Math.random() * 10),
+      mode: 'markers',
+      type: 'scatter',
+      marker: {
+        size: 8,
+        color: data.temps.slice(0, 100),
+        colorscale: [
+          [0, '#6b7334'],
+          [0.5, '#daa520'],
+          [1, '#cc5500']
+        ],
+        showscale: true,
+        colorbar: {
+          title: {
+            text: 'TEMP',
+            font: { family: 'Courier Prime', size: 11 }
+          },
+          tickfont: { family: 'Courier Prime', size: 10 }
+        },
+        line: {
+          color: '#5c4033',
+          width: 1
+        }
+      }
+    };
+
+    const scatterLayout = {
+      title: {
+        text: 'TEMPERATURE / HUMIDITY RELATIONSHIP',
+        font: { family: 'Bebas Neue', size: 20, color: '#5c4033' }
+      },
+      paper_bgcolor: '#fdfcf8',
+      plot_bgcolor: '#fdfcf8',
+      xaxis: {
+        title: 'TEMPERATURE (°F)',
+        gridcolor: '#d4cfc0',
+        tickfont: { size: 10 }
+      },
+      yaxis: {
+        title: 'HUMIDITY (%)',
+        gridcolor: '#d4cfc0',
+        tickfont: { size: 10 }
+      },
+      font: { family: 'Courier Prime', color: '#5c4033' },
+      hovermode: 'closest',
+      hoverlabel: {
+        bgcolor: '#fff8dc',
+        bordercolor: '#5c4033',
+        font: { family: 'Courier Prime', size: 11, color: '#5c4033' }
+      }
+    };
+
+    Plotly.newPlot('scatter-plot', [scatterTrace], scatterLayout, {
+      responsive: true,
+      displaylogo: false
+    });
+
+    // Wind Rose
+          const windData = [];
+      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+                          'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const speeds = ['0-5', '5-10', '10-15', '15-20', '20+'];
+      
+      directions.forEach(dir => {
+        speeds.forEach(speed => {
+          windData.push({
+            r: [Math.random() * 10 + 2],
+            theta: [dir],
+            name: speed + ' mph',
+            marker: { color: speed === '0-5' ? '#6b7334' : 
+                            speed === '5-10' ? '#daa520' : 
+                            speed === '10-15' ? '#cc5500' : 
+                            speed === '15-20' ? '#b7410e' : '#5c4033' },
+            type: 'barpolar'
+          });
+        });
+      });
+
+      const windLayout = {
+      title: {
+        text: 'WIND SPEED AND DIRECTION',
+        font: { family: 'Bebas Neue', size: 20, color: '#5c4033' }
+      },
+      paper_bgcolor: '#fdfcf8',
+      font: { family: 'Courier Prime', color: '#5c4033', size: 10 },
+      polar: {
+        bgcolor: '#fdfcf8',
+        angularaxis: {
+          tickfont: { size: 10 },
+          direction: 'clockwise',
+          rotation: 90,
+          gridcolor: '#d4cfc0'
+        },
+        radialaxis: {
+          tickfont: { size: 9 },
+          gridcolor: '#d4cfc0'
+        }
+      },
+      showlegend: true,
+      legend: {
+        bgcolor: '#fff8dc',
+        bordercolor: '#6b7334',
+        borderwidth: 1,
+        font: { size: 10 }
+      }
+    };
+
+    Plotly.newPlot('wind-rose', windData.slice(0, 16), windLayout, {
+      responsive: true,
+      displaylogo: false
+    });
+
+    // Add interactivity to controls
+    document.getElementById('yearSelect').addEventListener('change', function(e) {
+      // Update plots based on selection
+      console.log('Year changed to:', e.target.value);
+    });
+
+    document.getElementById('seasonSelect').addEventListener('change', function(e) {
+      // Update plots based on season
+      console.log('Season changed to:', e.target.value);
+    });
+
+    document.getElementById('metricSelect').addEventListener('change', function(e) {
+      // Switch between different metrics
+      console.log('Metric changed to:', e.target.value);
+    });
+  </script>
+</body>
+</html>
