@@ -41,22 +41,25 @@
   const traceMax = {
     type: "scattergl", mode: "lines", name: "TMAX (°F)",
     x: dates, y: tmax, customdata: hoverDates,
-    line: { color: "#d62728", width: 1.5 }, connectgaps: false,
+    line: { color: "#d62728", width: 1.8 }, connectgaps: false,
     hovertemplate: "%{customdata}<br>TMAX: %{y:.1f}°F<extra></extra>"
   };
   const traceMin = {
     type: "scattergl", mode: "lines", name: "TMIN (°F)",
     x: dates, y: tmin, customdata: hoverDates,
-    line: { color: "#1f77b4", width: 1.5 }, connectgaps: false,
+    line: { color: "#1f77b4", width: 1.8 }, connectgaps: false,
     hovertemplate: "%{customdata}<br>TMIN: %{y:.1f}°F<extra></extra>"
   };
   const layout1 = {
     uirevision: "keep",
     title: { text: "USW00012918 — Daily Max/Min Temperature (°F)", x: 0, xanchor: "left" },
-    legend: { orientation: "h", x: 1, y: 1.15, xanchor: "right", yanchor: "bottom" },
+    font: { color: "#0f172a" },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "#ffffff",
+    legend: { orientation: "h", x: 1, y: 1.15, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.8)", borderwidth: 0 },
     margin: { t: 60, r: 20, b: 60, l: 60 },
-    xaxis: { type: "date", title: "Date", autorange: false, range: [initialStart, maxDate], rangeslider: { visible: true, range: [minDate, maxDate] } },
-    yaxis: { title: "Temperature (°F)", tickformat: ".1f", ticksuffix: "°F", zeroline: false },
+    xaxis: { type: "date", title: "Date", autorange: false, range: [initialStart, maxDate], gridcolor: "rgba(15,23,42,0.08)", zeroline: false, rangeslider: { visible: true, range: [minDate, maxDate] } },
+    yaxis: { title: "Temperature (°F)", tickformat: ".1f", ticksuffix: "°F", zeroline: false, gridcolor: "rgba(15,23,42,0.08)" },
     hovermode: "x unified",
     updatemenus: [{ type: "buttons", direction: "right", x: 0, y: 1.22, xanchor: "left", yanchor: "bottom", pad: { r: 6, t: 0, b: 0, l: 0 }, showactive: false,
       buttons: [
@@ -105,6 +108,11 @@ function hexToRgba(hex, alpha) {
   const int = parseInt(h, 16);
   const r = (int >> 16) & 255, g = (int >> 8) & 255, b = int & 255;
   return `rgba(${r},${g},${b},${alpha})`;
+}
+function toHsla(hsl, alpha) {
+  if (typeof hsl !== 'string') return hsl;
+  if (hsl.startsWith('hsl(')) return hsl.replace('hsl(', 'hsla(').replace(')', `, ${alpha})`);
+  return hsl;
 }
 function ordinal(n) {
   const s = ["th","st","nd","rd"], v = n % 100;
@@ -223,7 +231,7 @@ function buildRidgelineCanonical(dates, tmax, tmin, years) {
       } else {
         traces.push({ type: "scatter", mode: "lines", x: sx, y: sb, line: { color: "rgba(0,0,0,0)" }, hoverinfo: "skip", showlegend: false });
         traces.push({ type: "scatter", mode: "lines", name: String(yr), showlegend: !legendShown, x: sx, y: sr,
-          line: { color: COLORS[idx], width: 1.2, shape: "spline" }, fill: "tonexty", fillcolor: hexToRgba(COLORS[idx], 0.55),
+          line: { color: COLORS[idx], width: 1.2, shape: "spline" }, fill: "tonexty", fillcolor: toHsla(COLORS[idx], 0.5),
           connectgaps: false, customdata: sr.map((_, j) => [sh[j], yVals[DOY.indexOf(sx[j])]]),
           hovertemplate: "%{customdata[0]}<br>Mean: %{customdata[1]:.1f}°F<extra></extra>" });
         legendShown = true;
@@ -241,10 +249,13 @@ function buildRidgelineCanonical(dates, tmax, tmin, years) {
 
   const layout2 = {
     title: { text: `Ridgeline — Daily Mean Temperature by Day‑of‑Year (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left" },
+    font: { color: "#0f172a" },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "#ffffff",
     margin: { t: 60, r: 20, b: 40, l: 60 },
-    xaxis: { title: "Day of Year", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] },
-    yaxis: { title: "", zeroline: false, showgrid: true, tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String) },
-    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.12, xanchor: "right", yanchor: "bottom" }
+    xaxis: { title: "Day of Year", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], gridcolor: "rgba(15,23,42,0.08)", zeroline: false },
+    yaxis: { title: "", zeroline: false, showgrid: true, gridcolor: "rgba(15,23,42,0.08)", tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String) },
+    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.12, xanchor: "right", yanchor: "bottom", bgcolor: "rgba(255,255,255,0.8)", borderwidth: 0 }
   };
   Plotly.newPlot("ridge", traces, layout2, { responsive: true, displaylogo: false });
 }

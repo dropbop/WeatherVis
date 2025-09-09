@@ -7,16 +7,24 @@
 <link href="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
 <style>
-  :root { color-scheme: light dark; }
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; line-height: 1.35; }
-  header, main, section { padding: 0.75rem 1rem; }
-  #chart { width: 100%; height: 78vh; max-height: 1000px; }
-  #ridge { width: 100%; height: 72vh; max-height: 900px; }
-  .note { opacity: .85; font-size: .9rem; }
-  .divider { height: 1px; background: #ccc; margin: 0.75rem 0; opacity: 0.3; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f7f8fb;
+    --card-bg: #ffffff;
+    --text: #0f172a;
+    --muted: #6b7280;
+    --radius: 12px;
+    --shadow: 0 6px 20px rgba(0,0,0,.06);
+  }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; line-height: 1.35; background: var(--bg); color: var(--text); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+  .card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.9rem 1.1rem; margin: 1rem 0; }
+  #chart { width: 100%; height: 64vh; max-height: 900px; }
+  #ridge { width: 100%; height: 62vh; max-height: 850px; }
+  .note { color: var(--muted); font-size: .92rem; }
   /* Summary controls & table */
-  .summary-wrap { padding: 0.75rem 1rem 1.25rem; }
-  .summary-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 0.5rem; }
+  .summary-wrap { padding: 0.5rem 0.2rem 0.8rem; }
+  .summary-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 0.4rem 0 0.6rem; }
   .summary-controls .group { display: flex; align-items: center; gap: 0.5rem; }
   .summary-controls label { font-size: 0.95rem; }
   .summary-controls .metric label { margin-right: 0.75rem; }
@@ -28,28 +36,27 @@
   h1 { margin: .3rem 0; }
   
 </style>
-<header>
-  <h1>HOU (USW00012918) — GHCN‑Daily, 1990→present</h1>
-  <div class="note">Data source: NCEI ADS daily‑summaries. Updated daily via GitHub Actions.</div>
-  <div id="dataStatus" class="note"></div>
-</header>
-<main>
-  <!-- Chart 1: Daily Max/Min time-series -->
-  <div id="chart"></div>
+<div class="container">
+  <header class="card">
+    <h1>HOU (USW00012918) — GHCN‑Daily, 1990→present</h1>
+    <div class="note">Data source: NCEI ADS daily‑summaries. Updated daily via GitHub Actions.</div>
+    <div id="dataStatus" class="note"></div>
+  </header>
 
-  <div class="divider"></div>
+  <div class="card">
+    <!-- Chart 1: Daily Max/Min time-series -->
+    <div id="chart"></div>
+  </div>
 
   <!-- Chart 2: Ridgeline (Daily Mean by Day-of-Year) -->
-  <section>
+  <section class="card">
     <h2 id="ridgeTitle">Ridgeline — Daily Mean Temperature by Day‑of‑Year</h2>
     <div class="note">Canonical DOY axis (1–366); gaps shown explicitly.</div>
     <div id="ridge"></div>
   </section>
 
-  <div class="divider"></div>
-
   <!-- Monthly summary table -->
-  <section class="summary-wrap">
+  <section class="card summary-wrap">
     <h2>Monthly Summary by Year</h2>
     <div class="note">Select a metric and year range. Values in °F (1 decimal).</div>
     <div class="summary-controls">
@@ -73,5 +80,5 @@
     </div>
     <div id="summary-grid"></div>
   </section>
-</main>
+</div>
 <script src="./assets/main.js"></script>
