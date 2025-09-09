@@ -75,15 +75,15 @@
     xaxis: { type: "date", title: "DATE", autorange: false, range: [initialStart, maxDate], gridcolor: THEME.grid, zeroline: false,
       rangeslider: { visible: true, range: [minDate, maxDate], bgcolor: '#f4f1e8', bordercolor: THEME.olive, borderwidth: 2 } },
     yaxis: { title: "TEMPERATURE (°F)", tickformat: ".1f", zeroline: false, gridcolor: THEME.grid, linecolor: THEME.brown, mirror: true },
-    hovermode: "x unified", hoverlabel: { bgcolor: THEME.paper, bordercolor: THEME.brown, font: { family: THEME.fontBody, size: 11 } },
-    updatemenus: [{ type: "buttons", direction: "right", x: 0, y: 1.22, xanchor: "left", yanchor: "bottom", pad: { r: 6, t: 0, b: 0, l: 0 }, showactive: false,
-      buttons: [
-        { label: "Default", method: "relayout", args: [ { "xaxis.range": [initialStart, maxDate] } ] },
-        { label: "All",     method: "relayout", args: [ { "xaxis.range": [minDate,    maxDate] } ] }
-      ]
-    }]
+    hovermode: "x unified", hoverlabel: { bgcolor: THEME.paper, bordercolor: THEME.brown, font: { family: THEME.fontBody, size: 11 } }
   };
   Plotly.newPlot("chart", [traceMax, traceMin], layout1, { responsive: true, displaylogo: false });
+
+  // External controls for view range (per Retro controls pattern)
+  const btnDef = document.getElementById('btnRangeDefault');
+  const btnAll = document.getElementById('btnRangeAll');
+  if (btnDef) btnDef.addEventListener('click', () => Plotly.relayout('chart', { 'xaxis.range': [initialStart, maxDate] }));
+  if (btnAll) btnAll.addEventListener('click', () => Plotly.relayout('chart', { 'xaxis.range': [minDate,    maxDate] }));
 
   // ---------- Chart 2: Ridgeline (client-side) ----------
   const years = [...new Set(dates.map(ds => Number(ds.slice(0,4))))].sort((a,b) => a - b);
