@@ -97,7 +97,7 @@
   // Also preset summary year inputs to the same default range
   document.getElementById("yearStart").value = hasOverlap ? clampStart : years[0];
   document.getElementById("yearEnd").value = hasOverlap ? clampEnd : years[years.length - 1];
-  buildRidgelineCanonical(dates, tmax, tmin, ridgeYears);
+  buildRidgelineCanonical(dates, tmax, tmin, ridgeYears, THEME);
 
   // ---------- Monthly summary (client-side) ----------
   const monthStats = precomputeMonthlyStats(dates, tmax, tmin);
@@ -179,7 +179,7 @@ function isLeap(year) {
   return (year % 4 === 0) && (year % 100 !== 0 || year % 400 === 0);
 }
 
-function buildRidgelineCanonical(dates, tmax, tmin, years) {
+function buildRidgelineCanonical(dates, tmax, tmin, years, theme) {
   // Create an olive→burnt-orange gradient across years
   function interpHex(c1, c2, t) {
     const a = parseInt(c1.slice(1), 16), b = parseInt(c2.slice(1), 16);
@@ -270,14 +270,14 @@ function buildRidgelineCanonical(dates, tmax, tmin, years) {
   });
 
   const layout2 = {
-    title: { text: `RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left", font: { family: THEME.fontTitle, size: 20, color: THEME.brown } },
-    font: { color: THEME.brown, family: THEME.fontBody },
-    paper_bgcolor: THEME.paper,
-    plot_bgcolor: THEME.panelBg,
+    title: { text: `RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR (${years[0]}–${years[years.length-1]})`, x: 0, xanchor: "left", font: { family: theme.fontTitle, size: 20, color: theme.brown } },
+    font: { color: theme.brown, family: theme.fontBody },
+    paper_bgcolor: theme.paper,
+    plot_bgcolor: theme.panelBg,
     margin: { t: 60, r: 20, b: 40, l: 60 },
-    xaxis: { title: "DAY OF YEAR", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], gridcolor: THEME.grid, zeroline: false, linecolor: THEME.brown, mirror: true },
-    yaxis: { title: "", zeroline: false, showgrid: true, gridcolor: THEME.grid, tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String), linecolor: THEME.brown, mirror: true },
-    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.08, xanchor: "right", yanchor: "bottom", bgcolor: THEME.paper, bordercolor: THEME.brown, borderwidth: 2 }
+    xaxis: { title: "DAY OF YEAR", range: [1, 366], tickmode: "array", tickvals: [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], ticktext: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], gridcolor: theme.grid, zeroline: false, linecolor: theme.brown, mirror: true },
+    yaxis: { title: "", zeroline: false, showgrid: true, gridcolor: theme.grid, tickmode: "array", tickvals: years.map((_, i) => i * GAP), ticktext: years.map(String), linecolor: theme.brown, mirror: true },
+    hovermode: "x unified", hoverdistance: 1, legend: { orientation: "h", x: 1, y: 1.08, xanchor: "right", yanchor: "bottom", bgcolor: theme.paper, bordercolor: theme.brown, borderwidth: 2 }
   };
   Plotly.newPlot("ridge", traces, layout2, { responsive: true, displaylogo: false });
 }

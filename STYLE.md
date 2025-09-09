@@ -539,6 +539,13 @@ Consider subtle seasonal themes:
 - **Storm Season**: Higher contrast, urgent stamps
 - **Drought**: Faded colors, cracked texture overlays
 
+### Update Weather Station Details
+##Station Details
+- **Name**	HOUSTON WILLIAM P HOBBY AIRPORT, TX US
+- **Network:ID**	GHCND:USW00012918
+- **Latitude/Longitude** 	29.64586°, -95.28212°
+- **Elevation** 	13.2 m 
+
 ---
 
 *This style guide represents the complete design system for the Retro Meteorology theme. All decisions prioritize authenticity, scientific authority, and the tactile feeling of official weather documentation from the golden age of analog meteorology.*
