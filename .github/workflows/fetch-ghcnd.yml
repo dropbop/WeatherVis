@@ -26,6 +26,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/USW00012918_1990_present.csv
+          git add docs/data/USW00012918_1990_present.csv docs/data/derived/metadata.json
           git commit -m "Update GHCN-Daily CSV (USW00012918)" || echo "No changes"
           git push

@@ -12,18 +12,6 @@
     const n = (typeof v === "number") ? v : (v == null ? NaN : Number(v));
     return Number.isFinite(n) ? n : null;
   }
-  function c_to_F(v) { return (v * 9/5) + 32; }
-  // Infer units for a numeric temperature and convert to °F.
-  // Heuristic:
-  // - >200 or < -150  => tenths °C (e.g., 350 => 95°F)
-  // - between -50..60 => °C
-  // - otherwise        => already °F
-  function toFahrenheitAuto(v) {
-    if (!Number.isFinite(v)) return null;
-    if (v > 200 || v < -150) return tenthsC_to_F(v);
-    if (v >= -50 && v <= 60) return c_to_F(v);
-    return v;
-  }
   const dates = [];
   const tmax = [];
   const tmin = [];
@@ -46,6 +34,9 @@
   const DEFAULT_START = "2020-01-01";
   const startCandidate = (maxDate >= DEFAULT_START) ? DEFAULT_START : minDate;
   const initialStart = (minDate > startCandidate) ? minDate : startCandidate;
+
+  // Update header with data range and refreshed time (if metadata is available)
+  updateDataStatus(minDate, maxDate);
 
   const traceMax = {
     type: "scattergl", mode: "lines", name: "TMAX (°F)",
@@ -125,6 +116,32 @@ function formatDateOrdinal(iso) {
   const day = d.getUTCDate();
   const year = d.getUTCFullYear();
   return `${month} ${day}${ordinal(day)} ${year}`;
+}
+function formatIsoShort(isoLike) {
+  if (!isoLike) return "";
+  const s = String(isoLike);
+  // If full ISO with time present, keep to seconds in UTC
+  if (s.includes('T')) {
+    const d = new Date(s);
+    if (!isNaN(d)) return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  }
+  // Otherwise return YYYY-MM-DD
+  return s.slice(0, 10);
+}
+async function updateDataStatus(minIso, maxIso) {
+  const el = document.getElementById('dataStatus');
+  if (!el) return;
+  const rangeText = `Data range: ${formatIsoShort(minIso)} → ${formatIsoShort(maxIso)}`;
+  try {
+    const res = await fetch('./data/derived/metadata.json', { cache: 'no-store' });
+    if (res.ok) {
+      const meta = await res.json();
+      const refreshed = meta && meta.generatedAt ? `; Refreshed: ${formatIsoShort(meta.generatedAt)}` : '';
+      el.textContent = rangeText + refreshed;
+      return;
+    }
+  } catch (_) { /* ignore */ }
+  el.textContent = rangeText;
 }
 function dayOfYearISO(isoDate) {
   const dt = new Date(isoDate + "T00:00:00Z");
