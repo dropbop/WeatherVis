@@ -7,22 +7,36 @@
   const rows = parsed.data.filter(r => r && r.DATE);
 
   // Convert to arrays we can reuse across views
-  function tenthsC_to_F(v) { return (v / 10) * 9/5 + 32; }
+  // Assume CSV temperatures are already in °F. No conversions.
+  function asNumber(v) {
+    const n = (typeof v === "number") ? v : (v == null ? NaN : Number(v));
+    return Number.isFinite(n) ? n : null;
+  }
+  function c_to_F(v) { return (v * 9/5) + 32; }
+  // Infer units for a numeric temperature and convert to °F.
+  // Heuristic:
+  // - >200 or < -150  => tenths °C (e.g., 350 => 95°F)
+  // - between -50..60 => °C
+  // - otherwise        => already °F
+  function toFahrenheitAuto(v) {
+    if (!Number.isFinite(v)) return null;
+    if (v > 200 || v < -150) return tenthsC_to_F(v);
+    if (v >= -50 && v <= 60) return c_to_F(v);
+    return v;
+  }
   const dates = [];
   const tmax = [];
   const tmin = [];
   for (const r of rows) {
     const d = String(r.DATE).slice(0, 10); // YYYY-MM-DD
-    let tmaxF = (r.TMAX_F ?? r.TMAX_f ?? r.tmax_f);
-    let tminF = (r.TMIN_F ?? r.TMIN_f ?? r.tmin_f);
-    if (tmaxF == null && r.TMAX != null) tmaxF = (typeof r.TMAX === "number") ? tenthsC_to_F(r.TMAX) : null;
-    if (tminF == null && r.TMIN != null) tminF = (typeof r.TMIN === "number") ? tenthsC_to_F(r.TMIN) : null;
-    // ADS units=standard may already be °F in TMAX/TMIN
-    if (tmaxF == null && typeof r.TMAX === "number") tmaxF = r.TMAX;
-    if (tminF == null && typeof r.TMIN === "number") tminF = r.TMIN;
+    // Use TMAX/TMIN as-is (°F). If missing, fallback to any *_F fields without conversion.
+    let tmaxF = asNumber(r.TMAX);
+    let tminF = asNumber(r.TMIN);
+    if (tmaxF == null) tmaxF = asNumber(r.TMAX_F ?? r.TMAX_f ?? r.tmax_f);
+    if (tminF == null) tminF = asNumber(r.TMIN_F ?? r.TMIN_f ?? r.tmin_f);
     dates.push(d);
-    tmax.push(Number.isFinite(tmaxF) ? Number(tmaxF) : null);
-    tmin.push(Number.isFinite(tminF) ? Number(tminF) : null);
+    tmax.push(tmaxF);
+    tmin.push(tminF);
   }
 
   // ---------- Chart 1: Daily Max/Min ----------
