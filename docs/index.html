@@ -6,7 +6,6 @@
   <title>HOUSTON WEATHER STATION — USW00012918</title>
   <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/theme/mermaid.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Oswald:wght@500&display=swap');
@@ -308,6 +307,13 @@
     .data-table tbody tr:nth-child(even) {
       background: #00000005;
     }
+    /* Grid.js minimal retro adjustments (no Mermaid theme) */
+    .gridjs-container { background: var(--paper); color: var(--brown); }
+    .gridjs-th { user-select: none; }
+    .gridjs-sort { cursor: pointer; }
+    .gridjs-sort::after { content: '↕'; font-size: 10px; margin-left: 6px; color: var(--brown); }
+    .gridjs-sort-asc::after { content: '▲'; }
+    .gridjs-sort-desc::after { content: '▼'; }
     /* Remove smooth transitions per design principles */
     * { transition: none !important; }
   </style>
