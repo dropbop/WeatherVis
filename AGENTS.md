@@ -18,6 +18,23 @@
 - Data path: the site reads `docs/data/...`; derived artifacts may live under `docs/data/derived/`.
 - Formatting: no enforced config; keep diffs minimal and consistent.
 
+## Style Reference Files (DO NOT MODIFY)
+- `STYLE.md`: Complete design system documentation for the Retro Meteorology theme
+- `STYLE.html`: Working example implementation showing all design patterns
+- **IMPORTANT**: These files are reference-only. Do not modify them. Use them as the authoritative source for styling decisions.
+
+## Design System Implementation
+When updating the app's visual design:
+1. Follow the Retro Meteorology Design System defined in `STYLE.md`
+2. Reference `STYLE.html` for implementation examples
+3. Core design principles:
+   - 1960s-1970s weather documentation aesthetic
+   - Typewriter fonts (Courier Prime), bureaucratic elements
+   - Earth tone color palette (burnt orange, olive, brown)
+   - Paper textures, halftone patterns, graph paper grids
+   - No smooth transitions, rounded corners, or modern effects
+   - Official stamps, form numbers, and administrative details
+
 ## Testing Guidelines
 - No formal test suite. Validate locally by loading the site via a static server and exercising interactivity.
 - Check rendering on desktop + mobile widths; verify CSV download from the summary table.

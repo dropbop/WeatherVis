@@ -32,6 +32,21 @@ git push
 - Structure: Keep browser code in `docs/assets/main.js` (or split into small files and import via `<script type="module">`).
 - Keep dependencies lean; avoid server frameworks.
 
+## Tech Stack & Guidelines
+
+### Design System
+- **Theme**: Retro Meteorology (1960s-1970s weather documentation aesthetic)
+- **Reference**: See `STYLE.md` for complete design system, `STYLE.html` for implementation
+- **Fonts**: Courier Prime (primary), Bebas Neue (display), Oswald (headers)
+- **Colors**: Earth tones - burnt orange (#cc5500), olive (#6b7334), brown (#5c4033)
+- **Effects**: Paper textures, halftone patterns, typewriter aesthetics
+
+### Visualization Libraries
+- Charts: Plotly.js for time series and complex interactions
+- Tables: Grid.js with retro styling overrides
+- Data: PapaParse for CSV processing
+- Supplementary: Chart.js for radar/bar charts, D3.js for heatmaps
+
 ## Development
 
 - Local preview (static): `python -m http.server -d docs 5500` then open http://localhost:5500
