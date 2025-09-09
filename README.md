@@ -4,10 +4,9 @@ An entirely online web app that displays local weather data for HOU / William P.
 
 ## How It Works
 
-- Hosting: GitHub Pages serves the static site from `docs/`.
+- Hosting: GitHub Pages serves a static app from `docs/` (no server).
 - Data: A daily GitHub Action downloads GHCN‑Daily via NCEI ADS and writes `docs/data/USW00012918_1990_present.csv`.
-- Visuals: `docs/index.html` + `docs/assets/main.js` render interactive Plotly views directly in the browser.
-- Local dev (optional): `app.py` provides a Flask view and JSON APIs to iterate quickly on visuals.
+- Visuals: `docs/index.html` + `docs/assets/main.js` render interactive views in the browser (Plotly.js + Grid.js; CSV parsed with PapaParse). No Flask in production.
 
 ## Backup Data (Do Not Overwrite)
 
@@ -25,11 +24,17 @@ git commit -m "Restore data from backup"
 git push
 ```
 
+## Tech Stack & Guidelines
+
+- Charts: Prefer Plotly.js for time series, ridgeline, and rich interactivity. Chart.js is optional for simple charts.
+- Tables: Grid.js for sortable, paginated tables (CSV download supported).
+- Data: Load CSV directly from `docs/data/…` via `fetch` and PapaParse. Add derived JSON under `docs/data/derived/` if needed.
+- Structure: Keep browser code in `docs/assets/main.js` (or split into small files and import via `<script type="module">`).
+- Keep dependencies lean; avoid server frameworks.
+
 ## Development
 
-- Setup: `python -m venv .venv && . .venv/bin/activate` (Windows: `.venv\Scripts\activate`)
-- Install: `pip install flask pandas numpy plotly requests`
-- Run (local): `python app.py` → http://localhost:5003
+- Local preview (static): `python -m http.server -d docs 5500` then open http://localhost:5500
 - Refresh data manually: `python scripts/fetch_ads_ghcnd.py`
 
-Tip: New visuals should be implemented in `docs/assets/main.js` (for Pages) and optionally mirrored in `templates/index.html` (for Flask dev).
+Tip: Add new visuals in `docs/assets/main.js` and corresponding sections in `docs/index.html`.
