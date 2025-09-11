@@ -151,6 +151,23 @@ function formatIsoShort(isoLike) {
   // Otherwise return YYYY-MM-DD
   return s.slice(0, 10);
 }
+// Format an ISO timestamp into Central Time (America/Chicago) with CST/CDT abbreviation
+function formatCentral(isoLike) {
+  if (!isoLike) return "";
+  const d = new Date(String(isoLike));
+  if (isNaN(d)) return String(isoLike);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    timeZoneName: 'short'
+  }).formatToParts(d);
+  const pick = (t) => (parts.find(p => p.type === t) || {}).value || '';
+  const y = pick('year'), m = pick('month'), day = pick('day');
+  const hh = pick('hour'), mm = pick('minute'), ss = pick('second');
+  const tz = pick('timeZoneName') || 'CT';
+  return `${y}-${m}-${day} ${hh}:${mm}:${ss} ${tz}`;
+}
 async function updateDataStatus(minIso, maxIso) {
   const el = document.getElementById('dataStatus');
   if (!el) return;
@@ -159,7 +176,7 @@ async function updateDataStatus(minIso, maxIso) {
     const res = await fetch('./data/derived/metadata.json', { cache: 'no-store' });
     if (res.ok) {
       const meta = await res.json();
-      const refreshed = meta && meta.generatedAt ? `; Refreshed: ${formatIsoShort(meta.generatedAt)}` : '';
+      const refreshed = meta && meta.generatedAt ? `; Refreshed (CST/CDT): ${formatCentral(meta.generatedAt)}` : '';
       el.textContent = rangeText + refreshed;
       return;
     }
