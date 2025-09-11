@@ -40,9 +40,38 @@ When updating the app's visual design:
 - Check rendering on desktop + mobile widths; verify CSV download from the summary table.
 
 ## Commit & Pull Request Guidelines
-- Commits: concise, imperative subject; include context when changing data or charts (e.g., "bundle gridjs assets and fix fahrenheit conversion").
-- PRs: include summary, rationale, validation steps, before/after screenshots for UI changes, and link related issues.
-- Keep changes scoped; avoid unrelated refactors.
+
+### Commits
+- Use an imperative, concise subject (≤ 60 chars). Keep body wrapped at ~72 chars.
+- Prefix subjects with a scope when helpful:
+  - `data:` CSV/metadata updates under `docs/data/` (manual updates only; the workflow may use its own message)
+  - `charts:` Plotly/Grid.js changes (e.g., `charts: ridgeline hover and axis tweaks`)
+  - `ui:` layout/typography/colors in `docs/index.html` or CSS
+  - `scripts:` data fetch/merge logic in `scripts/`
+  - `infra:` CI, GitHub Actions, Pages config
+  - `docs:` README or project docs
+  - `chore:` non-functional maintenance
+- When touching data or chart semantics, include context in the body:
+  - Data: note `startDate → endDate`, `rowCount`, `paddedDays`, and `generatedAt (CST/CDT)` if known.
+  - Units/fields: call out any schema or meaning changes (e.g., Fahrenheit vs Celsius).
+- Keep diffs minimal and atomic; avoid unrelated refactors. Prefer multiple small commits over one mixed change.
+- Example subjects:
+  - `charts: add CST/CDT timestamp to header`
+  - `scripts: write metadata.json with generatedAt`
+  - `ui: tighten legend spacing per STYLE.md`
+
+### Pull Requests
+- Include:
+  - Summary and rationale of the change
+  - Scope: key files/areas touched
+  - Validation steps (local server URL, controls exercised, CSV download checked)
+  - Before/after screenshots for any UI change (desktop + mobile widths)
+  - Data impact (if applicable): new range, row counts, padded days; link the workflow run if it produced the data
+  - Related issues/links
+- Keep PRs narrowly scoped. Split large data-only changes from code/UI where practical.
+- Label PRs to aid triage: `area:data`, `area:charts`, `area:ui`, `area:scripts`, `type:feature`, `type:fix`, `type:chore`.
+- Prefer "Squash and merge" for tidy history unless preserving individual commits is important.
+- For risky data/UI changes, include a rollback note (e.g., revert to `docs/data/backup/USW00012918_backup.csv` or prior commit SHA).
 
 ## Security & Configuration Tips
 - No secrets required; data is public. Avoid committing local tokens.
