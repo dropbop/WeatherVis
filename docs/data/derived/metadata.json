@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2025-11-17T06:46:25.681745+00:00",
+  "generatedAt": "2025-11-18T06:45:11.156428+00:00",
   "station": "USW00012918",
   "units": "standard",
   "startDate": "1990-01-01",
-  "endDate": "2025-10-25",
-  "rowCount": 13082,
-  "rowCountActual": 13051,
+  "endDate": "2025-11-15",
+  "rowCount": 13103,
+  "rowCountActual": 13072,
   "paddedDays": 31
 }
