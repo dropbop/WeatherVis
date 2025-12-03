@@ -1,31 +1,39 @@
-name: Fetch GHCN‑Daily (HOU) and update Pages data
+name: Fetch GHCN-Daily (HOU) and update Pages data
 
 on:
   schedule:
-    - cron: "15 6 * * *"  # daily ~06:15 UTC
+    - cron: "15 6 * * *"  # daily ~06:15 UTC (after GHCN-Daily typically updates)
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  fetch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+
       - name: Install deps
         run: pip install requests
-      - name: Fetch ADS daily-summaries (1990→present)
+
+      - name: Fetch GHCN-Daily incremental update
         run: python scripts/fetch_ads_ghcnd.py
-      - name: Commit updated data
+
+      - name: Commit if data changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/data/USW00012918_1990_present.csv docs/data/derived/metadata.json
-          git commit -m "Update GHCN-Daily CSV (USW00012918)" || echo "No changes"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update GHCN-Daily CSV (USW00012918)"
+            git push
+          fi
