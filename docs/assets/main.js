@@ -752,6 +752,10 @@ function buildPrecipCalendar(dates, prcp, year, years) {
   const wrapper = document.createElement('div');
   wrapper.className = 'calendar-wrapper';
 
+  // Inner container to keep months + grid aligned together when centered
+  const inner = document.createElement('div');
+  inner.className = 'calendar-inner';
+
   // Cell dimensions for positioning calculations
   const cellSize = 14;
   const cellGap = 3;
@@ -775,7 +779,7 @@ function buildPrecipCalendar(dates, prcp, year, years) {
     span.style.left = (monthWeekStarts[i] * cellUnit) + 'px';
     monthsRow.appendChild(span);
   });
-  wrapper.appendChild(monthsRow);
+  inner.appendChild(monthsRow);
 
   // Calendar container (days labels + grid)
   const calContainer = document.createElement('div');
@@ -826,7 +830,8 @@ function buildPrecipCalendar(dates, prcp, year, years) {
   }
 
   calContainer.appendChild(grid);
-  wrapper.appendChild(calContainer);
+  inner.appendChild(calContainer);
+  wrapper.appendChild(inner);
   container.appendChild(wrapper);
 
   // Tooltip handling
