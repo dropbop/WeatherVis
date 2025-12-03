@@ -602,7 +602,7 @@ function buildRidgelineChart(dates, tmax, tmin, years) {
       ticktext: years.map(String),
       linecolor: THEME.brown
     },
-    hovermode: 'closest',
+    hovermode: 'x unified',
     hoverlabel: {
       bgcolor: THEME.cream,
       bordercolor: THEME.brown,
