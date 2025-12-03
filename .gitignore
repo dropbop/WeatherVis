@@ -214,3 +214,6 @@ static/data/
 docs/data/*.csv
 docs/data/backup/*.csv
 docs/data/derived/metadata.json
+
+# Local agent files
+AGENTS.md
