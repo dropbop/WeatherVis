@@ -209,3 +209,8 @@ __marimo__/
 # Local bundles and data
 static/vendor/plotly/
 static/data/
+
+# Auto-generated weather data (updated by GitHub Actions)
+docs/data/*.csv
+docs/data/backup/*.csv
+docs/data/derived/metadata.json
