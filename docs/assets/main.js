@@ -489,8 +489,8 @@ function buildRidgelineChart(dates, tmax, tmin, years) {
   setText('ridgeTitle', `RIDGELINE — DAILY MEAN BY DAY-OF-YEAR (${years[0]}–${years[years.length - 1]})`);
   
   // Build traces
-  const GAP = 90;
-  const SCALE = 0.22;
+  const GAP = 30;
+  const SCALE = 0.5;
   const COLORS = years.map((_, i) => interpHex(THEME.olive, THEME.orange, years.length === 1 ? 0.5 : i / (years.length - 1)));
   const DOY = Array.from({ length: 366 }, (_, i) => i + 1);
   const traces = [];
