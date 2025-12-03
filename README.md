@@ -2,7 +2,7 @@
 
 Historical weather visualization for Houston Hobby Airport (1990–present).
 
-**Live:** https://dropbop.github.io/weathervis/
+**Live:** https://dropbop.github.io/WeatherVis/
 
 ## Run Locally
 
