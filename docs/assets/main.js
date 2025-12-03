@@ -489,7 +489,7 @@ function buildRidgelineChart(dates, tmax, tmin, years) {
   setText('ridgeTitle', `RIDGELINE — DAILY MEAN BY DAY-OF-YEAR (${years[0]}–${years[years.length - 1]})`);
   
   // Build traces
-  const GAP = 60;
+  const GAP = 90;
   const SCALE = 0.22;
   const COLORS = years.map((_, i) => interpHex(THEME.olive, THEME.orange, years.length === 1 ? 0.5 : i / (years.length - 1)));
   const DOY = Array.from({ length: 366 }, (_, i) => i + 1);
@@ -722,14 +722,18 @@ function downloadCSV(filename, rows) {
     const ridgeStart = Math.max(currentYear - 2, years[0]);
     const ridgeEnd = Math.min(currentYear, years[years.length - 1]);
     const ridgeYears = years.filter(y => y >= ridgeStart && y <= ridgeEnd);
-    
+
+    // Summary table range: 2020 to present (wider than ridgeline)
+    const summaryStart = Math.max(2020, years[0]);
+    const summaryEnd = ridgeEnd;
+
     // Update UI
     updateStatCards(overallStats);
     updateDataStatus(overallStats.minDate, overallStats.maxDate, metadata);
-    
+
     // Set default year inputs for summary table
-    document.getElementById('yearStart').value = ridgeStart;
-    document.getElementById('yearEnd').value = ridgeEnd;
+    document.getElementById('yearStart').value = summaryStart;
+    document.getElementById('yearEnd').value = summaryEnd;
     
     // Build charts
     buildTimeSeriesChart(dates, tmax, tmin);
