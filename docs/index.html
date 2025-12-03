@@ -422,6 +422,9 @@ button:active {
 /* Precipitation Calendar */
 .calendar-wrapper {
   overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .calendar-months {
@@ -481,19 +484,19 @@ button:active {
 }
 
 .calendar-cell.precip-1 {
-  background: var(--cream);
+  background: #e8e4d0;
 }
 
 .calendar-cell.precip-2 {
-  background: var(--gold);
+  background: #b8ad8a;
 }
 
 .calendar-cell.precip-3 {
-  background: var(--burnt-orange);
+  background: #8b7355;
 }
 
 .calendar-cell.precip-4 {
-  background: var(--rust);
+  background: var(--brown);
 }
 
 .calendar-cell.precip-missing {
@@ -517,6 +520,7 @@ button:active {
 .precip-legend {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin-top: 15px;
   font-size: 9px;
@@ -718,19 +722,19 @@ button:active {
           <span>0"</span>
         </div>
         <div class="precip-legend-item">
-          <div class="precip-legend-swatch" style="background: var(--cream);"></div>
+          <div class="precip-legend-swatch" style="background: #e8e4d0;"></div>
           <span>&lt;0.1"</span>
         </div>
         <div class="precip-legend-item">
-          <div class="precip-legend-swatch" style="background: var(--gold);"></div>
+          <div class="precip-legend-swatch" style="background: #b8ad8a;"></div>
           <span>0.1–0.5"</span>
         </div>
         <div class="precip-legend-item">
-          <div class="precip-legend-swatch" style="background: var(--burnt-orange);"></div>
+          <div class="precip-legend-swatch" style="background: #8b7355;"></div>
           <span>0.5–2"</span>
         </div>
         <div class="precip-legend-item">
-          <div class="precip-legend-swatch" style="background: var(--rust);"></div>
+          <div class="precip-legend-swatch" style="background: var(--brown);"></div>
           <span>2"+</span>
         </div>
         <div class="precip-legend-item">
