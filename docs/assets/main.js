@@ -153,22 +153,25 @@ async function loadWeatherData() {
   const dates = [];
   const tmax = [];
   const tmin = [];
-  
+  const prcp = [];
+
   for (const r of rows) {
     const d = String(r.DATE).slice(0, 10);
     let tmaxF = asNumber(r.TMAX);
     let tminF = asNumber(r.TMIN);
-    
+    let prcpVal = asNumber(r.PRCP);
+
     // Fallback to alternative field names
     if (tmaxF == null) tmaxF = asNumber(r.TMAX_F ?? r.TMAX_f);
     if (tminF == null) tminF = asNumber(r.TMIN_F ?? r.TMIN_f);
-    
+
     dates.push(d);
     tmax.push(tmaxF);
     tmin.push(tminF);
+    prcp.push(prcpVal);
   }
-  
-  return { dates, tmax, tmin };
+
+  return { dates, tmax, tmin, prcp };
 }
 
 async function loadMetadata() {
@@ -315,14 +318,103 @@ function updateStatCards(stats) {
 async function updateDataStatus(minDate, maxDate, metadata) {
   const el = document.getElementById('dataStatus');
   if (!el) return;
-  
+
   let text = `Data: ${formatDateShort(minDate)} → ${formatDateShort(maxDate)}`;
-  
+
   if (metadata && metadata.generatedAt) {
     text += ` · Updated: ${formatCentral(metadata.generatedAt)}`;
   }
-  
+
   el.textContent = text;
+}
+
+// =============================================================================
+// ON THIS DAY
+// =============================================================================
+
+function computeOnThisDayStats(dates, tmax, tmin) {
+  const now = new Date();
+  let month = now.getMonth() + 1;
+  let day = now.getDate();
+
+  // Handle Feb 29 - use Feb 28 data instead
+  if (month === 2 && day === 29) {
+    day = 28;
+  }
+
+  const mmdd = String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+
+  let recordHigh = -Infinity;
+  let recordHighYear = null;
+  let recordLow = Infinity;
+  let recordLowYear = null;
+  let sumHigh = 0;
+  let countHigh = 0;
+  let sumLow = 0;
+  let countLow = 0;
+
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i];
+    const dateMmdd = d.slice(5, 10);
+    if (dateMmdd !== mmdd) continue;
+
+    const year = Number(d.slice(0, 4));
+    const tx = tmax[i];
+    const tn = tmin[i];
+
+    if (tx != null) {
+      sumHigh += tx;
+      countHigh++;
+      if (tx > recordHigh) {
+        recordHigh = tx;
+        recordHighYear = year;
+      }
+    }
+
+    if (tn != null) {
+      sumLow += tn;
+      countLow++;
+      if (tn < recordLow) {
+        recordLow = tn;
+        recordLowYear = year;
+      }
+    }
+  }
+
+  return {
+    month,
+    day,
+    recordHigh: recordHigh !== -Infinity ? recordHigh : null,
+    recordHighYear,
+    recordLow: recordLow !== Infinity ? recordLow : null,
+    recordLowYear,
+    avgHigh: countHigh > 0 ? sumHigh / countHigh : null,
+    avgLow: countLow > 0 ? sumLow / countLow : null,
+    yearCount: countHigh
+  };
+}
+
+function updateOnThisDay(stats) {
+  // Format date for title
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthName = monthNames[stats.month - 1];
+  const dayOrd = stats.day + ordinal(stats.day);
+
+  setText('onThisDayTitle', `ON THIS DAY — ${monthName.toUpperCase()} ${dayOrd.toUpperCase()}`);
+
+  // Record High
+  setText('otdRecordHigh', stats.recordHigh != null ? stats.recordHigh.toFixed(1) : '--');
+  setText('otdRecordHighYear', stats.recordHighYear ? String(stats.recordHighYear) : '');
+
+  // Record Low
+  setText('otdRecordLow', stats.recordLow != null ? stats.recordLow.toFixed(1) : '--');
+  setText('otdRecordLowYear', stats.recordLowYear ? String(stats.recordLowYear) : '');
+
+  // Averages
+  setText('otdAvgHigh', stats.avgHigh != null ? stats.avgHigh.toFixed(1) : '--');
+  setText('otdAvgLow', stats.avgLow != null ? stats.avgLow.toFixed(1) : '--');
+  setText('otdAvgYears', stats.yearCount > 0 ? `${stats.yearCount}-yr avg` : '');
 }
 
 // =============================================================================
@@ -619,6 +711,155 @@ function buildRidgelineChart(dates, tmax, tmin, years) {
 }
 
 // =============================================================================
+// PRECIPITATION CALENDAR
+// =============================================================================
+
+function getPrecipClass(value) {
+  if (value === null) return 'precip-missing';
+  if (value === 0) return 'precip-0';
+  if (value < 0.1) return 'precip-1';
+  if (value < 0.5) return 'precip-2';
+  if (value < 2.0) return 'precip-3';
+  return 'precip-4';
+}
+
+function buildPrecipCalendar(dates, prcp, year, years) {
+  const container = document.getElementById('precip-calendar');
+  const tooltip = document.getElementById('calendar-tooltip');
+  if (!container) return;
+
+  // Build lookup map for this year's data
+  const dataMap = new Map();
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i];
+    const y = Number(d.slice(0, 4));
+    if (y === year) {
+      dataMap.set(d, prcp[i]);
+    }
+  }
+
+  // Calculate first day of year and total days
+  const jan1 = new Date(Date.UTC(year, 0, 1));
+  const startDow = jan1.getUTCDay(); // 0 = Sunday
+  const daysInYear = isLeap(year) ? 366 : 365;
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create wrapper for horizontal scroll on mobile
+  const wrapper = document.createElement('div');
+  wrapper.className = 'calendar-wrapper';
+
+  // Month labels
+  const monthsRow = document.createElement('div');
+  monthsRow.className = 'calendar-months';
+  MONTH_NAMES.forEach(m => {
+    const span = document.createElement('span');
+    span.textContent = m;
+    monthsRow.appendChild(span);
+  });
+  wrapper.appendChild(monthsRow);
+
+  // Calendar container (days labels + grid)
+  const calContainer = document.createElement('div');
+  calContainer.className = 'calendar-container';
+
+  // Day of week labels
+  const daysCol = document.createElement('div');
+  daysCol.className = 'calendar-days';
+  ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(d => {
+    const span = document.createElement('span');
+    span.textContent = d;
+    daysCol.appendChild(span);
+  });
+  calContainer.appendChild(daysCol);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'calendar-grid';
+
+  // Add empty cells for days before Jan 1
+  for (let i = 0; i < startDow; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-cell';
+    cell.style.visibility = 'hidden';
+    grid.appendChild(cell);
+  }
+
+  // Add cells for each day of the year
+  for (let dayNum = 1; dayNum <= daysInYear; dayNum++) {
+    const date = new Date(Date.UTC(year, 0, dayNum));
+    const isoDate = date.toISOString().slice(0, 10);
+    const prcpValue = dataMap.get(isoDate);
+
+    const cell = document.createElement('div');
+    cell.className = 'calendar-cell';
+
+    // Check if this is a future date
+    if (isoDate > todayStr) {
+      cell.classList.add('future');
+    } else {
+      cell.classList.add(getPrecipClass(prcpValue));
+    }
+
+    cell.dataset.date = isoDate;
+    cell.dataset.prcp = prcpValue !== null ? prcpValue : '';
+
+    grid.appendChild(cell);
+  }
+
+  calContainer.appendChild(grid);
+  wrapper.appendChild(calContainer);
+  container.appendChild(wrapper);
+
+  // Tooltip handling
+  grid.addEventListener('mouseover', (e) => {
+    const cell = e.target.closest('.calendar-cell');
+    if (!cell || !cell.dataset.date) return;
+
+    const dateStr = cell.dataset.date;
+    const prcpStr = cell.dataset.prcp;
+
+    let text = formatDateOrdinal(dateStr);
+    if (cell.classList.contains('future')) {
+      text += '<br>Future date';
+    } else if (prcpStr === '') {
+      text += '<br>No data';
+    } else {
+      text += `<br>Precip: ${Number(prcpStr).toFixed(2)}"`;
+    }
+
+    tooltip.innerHTML = text;
+    tooltip.classList.add('visible');
+  });
+
+  grid.addEventListener('mousemove', (e) => {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top = (e.clientY + 12) + 'px';
+  });
+
+  grid.addEventListener('mouseout', (e) => {
+    if (!e.relatedTarget || !e.relatedTarget.closest('.calendar-grid')) {
+      tooltip.classList.remove('visible');
+    }
+  });
+
+  // Populate year selector if not already done
+  const yearSelect = document.getElementById('precip-year');
+  if (yearSelect && yearSelect.options.length === 0) {
+    years.slice().reverse().forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      if (y === year) opt.selected = true;
+      yearSelect.appendChild(opt);
+    });
+  }
+}
+
+// =============================================================================
 // SUMMARY TABLE
 // =============================================================================
 
@@ -707,16 +948,16 @@ function downloadCSV(filename, rows) {
       loadWeatherData(),
       loadMetadata()
     ]);
-    
-    const { dates, tmax, tmin } = data;
-    
+
+    const { dates, tmax, tmin, prcp } = data;
+
     // Compute statistics
     const overallStats = computeOverallStats(dates, tmax, tmin);
     const monthlyStats = precomputeMonthlyStats(dates, tmax, tmin);
-    
+
     // Get year range
     const years = [...new Set(dates.map(d => Number(d.slice(0, 4))))].sort((a, b) => a - b);
-    
+
     // Default ridgeline range: current year and previous 2 years
     const currentYear = new Date().getFullYear();
     const ridgeStart = Math.max(currentYear - 2, years[0]);
@@ -731,24 +972,37 @@ function downloadCSV(filename, rows) {
     updateStatCards(overallStats);
     updateDataStatus(overallStats.minDate, overallStats.maxDate, metadata);
 
+    // On This Day panel
+    const onThisDayStats = computeOnThisDayStats(dates, tmax, tmin);
+    updateOnThisDay(onThisDayStats);
+
     // Set default year inputs for summary table
     document.getElementById('yearStart').value = summaryStart;
     document.getElementById('yearEnd').value = summaryEnd;
-    
+
     // Build charts
     buildTimeSeriesChart(dates, tmax, tmin);
     buildRidgelineChart(dates, tmax, tmin, ridgeYears);
-    
+
+    // Build precipitation calendar (default to current year or most recent)
+    const precipYear = years.includes(currentYear) ? currentYear : years[years.length - 1];
+    buildPrecipCalendar(dates, prcp, precipYear, years);
+
+    // Wire up precipitation year selector
+    document.getElementById('precip-year').addEventListener('change', (e) => {
+      buildPrecipCalendar(dates, prcp, Number(e.target.value), years);
+    });
+
     // Render summary table
     renderSummary(monthlyStats);
-    
+
     // Wire up summary controls
     document.getElementById('btnApply').addEventListener('click', () => renderSummary(monthlyStats));
-    
+
     document.querySelectorAll('input[name="metric"]').forEach(radio => {
       radio.addEventListener('change', () => renderSummary(monthlyStats));
     });
-    
+
     document.getElementById('btnDownload').addEventListener('click', () => {
       const { rows } = getSummaryRows(monthlyStats);
       const metric = getSelectedMetric();
@@ -760,7 +1014,7 @@ function downloadCSV(filename, rows) {
       }[metric] || metric;
       downloadCSV(`houston_weather_${metricLabel}.csv`, rows);
     });
-    
+
   } catch (err) {
     console.error('Failed to initialize:', err);
     setError('chart', `Error: ${err.message}`);

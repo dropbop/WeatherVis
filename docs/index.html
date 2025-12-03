@@ -188,6 +188,41 @@ h1 {
   margin-top: 3px;
 }
 
+/* On This Day panel */
+.on-this-day {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 25px;
+  align-items: start;
+  margin-bottom: 25px;
+}
+
+.on-this-day .panel {
+  margin-bottom: 0;
+}
+
+.on-this-day .panel-title {
+  margin-bottom: 15px;
+}
+
+.stats-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.stats-grid-2x2 .stat-card {
+  padding: 12px;
+}
+
+.stats-grid-2x2 .stat-value {
+  font-size: 28px;
+}
+
+.stats-grid-2x2 .stat-label {
+  font-size: 9px;
+}
+
 /* Controls */
 .controls {
   display: flex;
@@ -406,6 +441,137 @@ button:active {
 .gridjs-sort-asc::after { content: ' ▲'; opacity: 1; }
 .gridjs-sort-desc::after { content: ' ▼'; opacity: 1; }
 
+/* Precipitation Calendar */
+.calendar-wrapper {
+  overflow-x: auto;
+}
+
+.calendar-months {
+  display: flex;
+  margin-left: 28px;
+  margin-bottom: 4px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--olive);
+  text-transform: uppercase;
+}
+
+.calendar-months span {
+  flex: 1;
+  min-width: 56px;
+}
+
+.calendar-container {
+  display: flex;
+  gap: 4px;
+}
+
+.calendar-days {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 8px;
+  color: var(--olive);
+  padding-top: 2px;
+}
+
+.calendar-days span {
+  height: 12px;
+  line-height: 12px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-rows: repeat(7, 12px);
+  grid-auto-flow: column;
+  grid-auto-columns: 12px;
+  gap: 2px;
+}
+
+.calendar-cell {
+  width: 12px;
+  height: 12px;
+  cursor: crosshair;
+  position: relative;
+}
+
+.calendar-cell.precip-0 {
+  background: var(--paper);
+  border: 1px solid var(--olive);
+  box-sizing: border-box;
+}
+
+.calendar-cell.precip-1 {
+  background: var(--cream);
+}
+
+.calendar-cell.precip-2 {
+  background: var(--gold);
+}
+
+.calendar-cell.precip-3 {
+  background: var(--burnt-orange);
+}
+
+.calendar-cell.precip-4 {
+  background: var(--rust);
+}
+
+.calendar-cell.precip-missing {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--paper),
+    var(--paper) 2px,
+    var(--grid) 2px,
+    var(--grid) 4px
+  );
+  border: 1px solid var(--grid);
+  box-sizing: border-box;
+}
+
+.calendar-cell.future {
+  background: var(--bg);
+  border: 1px dashed var(--grid);
+  box-sizing: border-box;
+}
+
+.precip-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  font-size: 9px;
+  color: var(--olive);
+  letter-spacing: 1px;
+}
+
+.precip-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.precip-legend-swatch {
+  width: 12px;
+  height: 12px;
+}
+
+.calendar-tooltip {
+  position: fixed;
+  background: var(--paper);
+  border: 2px solid var(--brown);
+  padding: 6px 10px;
+  font-size: 11px;
+  box-shadow: 3px 3px 0 #00000020;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+}
+
+.calendar-tooltip.visible {
+  display: block;
+}
+
 /* Footer */
 .footer {
   margin-top: 40px;
@@ -421,34 +587,42 @@ button:active {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .on-this-day {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
   body { padding: 10px; }
-  
+
   h1 { font-size: 36px; }
-  
+
   .header { padding: 20px; }
-  
+
   .stamp { display: none; }
-  
+
   .stats-grid {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  
+
   .stat-value { font-size: 28px; }
-  
+
   .panel { padding: 15px; }
-  
+
   .controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .control-group .radio-group {
     flex-direction: column;
     gap: 8px;
+  }
+
+  .precip-legend {
+    flex-wrap: wrap;
   }
   
   .btn-group {
@@ -475,29 +649,58 @@ button:active {
       <div class="stamp">NOAA<br>GHCN<br>DAILY</div>
     </header>
 
-    <!-- Summary Stats -->
-    <section class="stats-grid" id="statsGrid">
-      <div class="stat-card">
-        <div class="stat-value" id="statRecordHigh">--</div>
-        <div class="stat-label">Record High °F</div>
-        <div class="stat-date" id="statRecordHighDate"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value cold" id="statRecordLow">--</div>
-        <div class="stat-label">Record Low °F</div>
-        <div class="stat-date" id="statRecordLowDate"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value neutral" id="statMeanTemp">--</div>
-        <div class="stat-label">Mean Temp °F</div>
-        <div class="stat-date">(all years)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value neutral" id="statDataPoints">--</div>
-        <div class="stat-label">Data Points</div>
-        <div class="stat-date" id="statDateRange"></div>
-      </div>
-    </section>
+    <!-- On This Day + Summary Stats -->
+    <div class="on-this-day">
+      <section class="panel" id="onThisDay">
+        <h2 class="panel-title" id="onThisDayTitle">ON THIS DAY — --</h2>
+        <div class="stats-grid-2x2">
+          <div class="stat-card">
+            <div class="stat-value" id="otdRecordHigh">--</div>
+            <div class="stat-label">Record High °F</div>
+            <div class="stat-date" id="otdRecordHighYear"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value cold" id="otdRecordLow">--</div>
+            <div class="stat-label">Record Low °F</div>
+            <div class="stat-date" id="otdRecordLowYear"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value neutral" id="otdAvgHigh">--</div>
+            <div class="stat-label">Avg High °F</div>
+            <div class="stat-date" id="otdAvgYears"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value neutral" id="otdAvgLow">--</div>
+            <div class="stat-label">Avg Low °F</div>
+            <div class="stat-date"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary Stats -->
+      <section class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-value" id="statRecordHigh">--</div>
+          <div class="stat-label">Record High °F</div>
+          <div class="stat-date" id="statRecordHighDate"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value cold" id="statRecordLow">--</div>
+          <div class="stat-label">Record Low °F</div>
+          <div class="stat-date" id="statRecordLowDate"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value neutral" id="statMeanTemp">--</div>
+          <div class="stat-label">Mean Temp °F</div>
+          <div class="stat-date">(all years)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value neutral" id="statDataPoints">--</div>
+          <div class="stat-label">Data Points</div>
+          <div class="stat-date" id="statDateRange"></div>
+        </div>
+      </section>
+    </div>
 
     <!-- Panel: Time Series -->
     <section class="panel">
@@ -520,6 +723,45 @@ button:active {
       <h2 class="panel-title" id="ridgeTitle">RIDGELINE — DAILY MEAN BY DAY-OF-YEAR</h2>
       <div class="interactive-note">YEAR COMPARISON</div>
       <div id="ridge" class="chart-container loading"></div>
+    </section>
+
+    <!-- Panel: Precipitation Calendar -->
+    <section class="panel">
+      <h2 class="panel-title">PRECIPITATION CALENDAR</h2>
+      <div class="controls">
+        <div class="control-group">
+          <label>Year</label>
+          <select id="precip-year"></select>
+        </div>
+      </div>
+      <div id="precip-calendar"></div>
+      <div class="precip-legend">
+        <span>RAINFALL:</span>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: var(--paper); border: 1px solid var(--olive);"></div>
+          <span>0"</span>
+        </div>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: var(--cream);"></div>
+          <span>&lt;0.1"</span>
+        </div>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: var(--gold);"></div>
+          <span>0.1–0.5"</span>
+        </div>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: var(--burnt-orange);"></div>
+          <span>0.5–2"</span>
+        </div>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: var(--rust);"></div>
+          <span>2"+</span>
+        </div>
+        <div class="precip-legend-item">
+          <div class="precip-legend-swatch" style="background: repeating-linear-gradient(45deg, var(--paper), var(--paper) 2px, var(--grid) 2px, var(--grid) 4px);"></div>
+          <span>NO DATA</span>
+        </div>
+      </div>
     </section>
 
     <!-- Panel: Monthly Summary -->
@@ -561,6 +803,7 @@ button:active {
     </footer>
 
   </div>
+  <div id="calendar-tooltip" class="calendar-tooltip"></div>
   <script src="./assets/main.js"></script>
 </body>
 </html>
