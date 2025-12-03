@@ -752,12 +752,27 @@ function buildPrecipCalendar(dates, prcp, year, years) {
   const wrapper = document.createElement('div');
   wrapper.className = 'calendar-wrapper';
 
-  // Month labels
+  // Cell dimensions for positioning calculations
+  const cellSize = 14;
+  const cellGap = 3;
+  const cellUnit = cellSize + cellGap;
+
+  // Calculate week column for first day of each month
+  const monthWeekStarts = [];
+  for (let m = 0; m < 12; m++) {
+    const firstOfMonth = new Date(Date.UTC(year, m, 1));
+    const dayOfYear = Math.floor((firstOfMonth - jan1) / 86400000);
+    const weekCol = Math.floor((startDow + dayOfYear) / 7);
+    monthWeekStarts.push(weekCol);
+  }
+
+  // Month labels with calculated positions
   const monthsRow = document.createElement('div');
   monthsRow.className = 'calendar-months';
-  MONTH_NAMES.forEach(m => {
+  MONTH_NAMES.forEach((m, i) => {
     const span = document.createElement('span');
     span.textContent = m;
+    span.style.left = (monthWeekStarts[i] * cellUnit) + 'px';
     monthsRow.appendChild(span);
   });
   wrapper.appendChild(monthsRow);
