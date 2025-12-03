@@ -188,39 +188,17 @@ h1 {
   margin-top: 3px;
 }
 
-/* On This Day panel */
-.on-this-day {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 25px;
-  align-items: start;
+/* Stats section labels */
+.stats-section {
   margin-bottom: 25px;
 }
 
-.on-this-day .panel {
-  margin-bottom: 0;
-}
-
-.on-this-day .panel-title {
-  margin-bottom: 15px;
-}
-
-.stats-grid-2x2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.stats-grid-2x2 .stat-card {
-  padding: 12px;
-}
-
-.stats-grid-2x2 .stat-value {
-  font-size: 28px;
-}
-
-.stats-grid-2x2 .stat-label {
-  font-size: 9px;
+.stats-section-label {
+  font: 14px 'Oswald', sans-serif;
+  color: var(--olive);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
 /* Controls */
@@ -587,10 +565,6 @@ button:active {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .on-this-day {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 600px) {
@@ -649,36 +623,37 @@ button:active {
       <div class="stamp">NOAA<br>GHCN<br>DAILY</div>
     </header>
 
-    <!-- On This Day + Summary Stats -->
-    <div class="on-this-day">
-      <section class="panel" id="onThisDay">
-        <h2 class="panel-title" id="onThisDayTitle">ON THIS DAY — --</h2>
-        <div class="stats-grid-2x2">
-          <div class="stat-card">
-            <div class="stat-value" id="otdRecordHigh">--</div>
-            <div class="stat-label">Record High °F</div>
-            <div class="stat-date" id="otdRecordHighYear"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value cold" id="otdRecordLow">--</div>
-            <div class="stat-label">Record Low °F</div>
-            <div class="stat-date" id="otdRecordLowYear"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value neutral" id="otdAvgHigh">--</div>
-            <div class="stat-label">Avg High °F</div>
-            <div class="stat-date" id="otdAvgYears"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value neutral" id="otdAvgLow">--</div>
-            <div class="stat-label">Avg Low °F</div>
-            <div class="stat-date"></div>
-          </div>
+    <!-- On This Day -->
+    <section class="stats-section" id="onThisDay">
+      <div class="stats-section-label" id="onThisDayTitle">ON THIS DAY — --</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="otdRecordHigh">--</div>
+          <div class="stat-label">Record High °F</div>
+          <div class="stat-date" id="otdRecordHighYear"></div>
         </div>
-      </section>
+        <div class="stat-card">
+          <div class="stat-value cold" id="otdRecordLow">--</div>
+          <div class="stat-label">Record Low °F</div>
+          <div class="stat-date" id="otdRecordLowYear"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value neutral" id="otdAvgHigh">--</div>
+          <div class="stat-label">Avg High °F</div>
+          <div class="stat-date" id="otdAvgYears"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value neutral" id="otdAvgLow">--</div>
+          <div class="stat-label">Avg Low °F</div>
+          <div class="stat-date"></div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Summary Stats -->
-      <section class="stats-grid" id="statsGrid">
+    <!-- All-Time Records -->
+    <section class="stats-section">
+      <div class="stats-section-label">ALL-TIME RECORDS</div>
+      <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
           <div class="stat-value" id="statRecordHigh">--</div>
           <div class="stat-label">Record High °F</div>
@@ -699,8 +674,8 @@ button:active {
           <div class="stat-label">Data Points</div>
           <div class="stat-date" id="statDateRange"></div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
 
     <!-- Panel: Time Series -->
     <section class="panel">
