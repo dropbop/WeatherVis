@@ -489,7 +489,7 @@ function buildRidgelineChart(dates, tmax, tmin, years) {
   setText('ridgeTitle', `RIDGELINE — DAILY MEAN BY DAY-OF-YEAR (${years[0]}–${years[years.length - 1]})`);
   
   // Build traces
-  const GAP = 28;
+  const GAP = 60;
   const SCALE = 0.22;
   const COLORS = years.map((_, i) => interpHex(THEME.olive, THEME.orange, years.length === 1 ? 0.5 : i / (years.length - 1)));
   const DOY = Array.from({ length: 366 }, (_, i) => i + 1);
@@ -717,11 +717,10 @@ function downloadCSV(filename, rows) {
     // Get year range
     const years = [...new Set(dates.map(d => Number(d.slice(0, 4))))].sort((a, b) => a - b);
     
-    // Default ridgeline range: 2020-present (clamped to available data)
-    const RIDGE_START = 2020;
-    const RIDGE_END = new Date().getFullYear();
-    const ridgeStart = Math.max(RIDGE_START, years[0]);
-    const ridgeEnd = Math.min(RIDGE_END, years[years.length - 1]);
+    // Default ridgeline range: current year and previous 2 years
+    const currentYear = new Date().getFullYear();
+    const ridgeStart = Math.max(currentYear - 2, years[0]);
+    const ridgeEnd = Math.min(currentYear, years[years.length - 1]);
     const ridgeYears = years.filter(y => y >= ridgeStart && y <= ridgeEnd);
     
     // Update UI
