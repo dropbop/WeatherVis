@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -8,361 +8,531 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gridjs@6.2.0/dist/gridjs.umd.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Oswald:wght@500&display=swap');
-    
-    :root {
-      --bg: #f4f1e8;
-      --paper: #fdfcf8;
-      --burnt-orange: #cc5500;
-      --olive: #6b7334;
-      --brown: #5c4033;
-      --cream: #fff8dc;
-      --gold: #daa520;
-      --rust: #b7410e;
-      --text: #2c2416;
-      --grid: #d4cfc0;
-      --amber: #ffbf00;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Courier Prime', 'Courier New', monospace;
-      background: 
-        repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 10px,
-          #00000003 10px,
-          #00000003 20px
-        ),
-        linear-gradient(180deg, var(--bg) 0%, #e8e2d0 100%);
-      color: var(--text);
-      padding: 20px;
-      min-height: 100vh;
-      position: relative;
-    }
-    
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: 
-        radial-gradient(circle at 2px 2px, #00000008 1px, transparent 1px);
-      background-size: 20px 20px;
-      pointer-events: none;
-      z-index: 1;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .header {
-      background: var(--paper);
-      border: 3px solid var(--brown);
-      padding: 30px;
-      position: relative;
-      margin-bottom: 30px;
-      box-shadow: 
-        5px 5px 0 #00000010,
-        10px 10px 0 #00000008;
-    }
-    
-    .header::before {
-      content: "FORM WB-1247";
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 10px;
-      color: var(--olive);
-      letter-spacing: 2px;
-    }
-    
-    .header::after {
-      content: "";
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      width: 40px;
-      height: 40px;
-      background: 
-        radial-gradient(circle at center, transparent 40%, var(--burnt-orange) 42%, var(--burnt-orange) 48%, transparent 50%),
-        conic-gradient(from 0deg, var(--burnt-orange), var(--gold), var(--burnt-orange));
-      border-radius: 50%;
-      opacity: 0.3;
-    }
-    
-    h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px;
-      color: var(--burnt-orange);
-      letter-spacing: 3px;
-      text-align: center;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 0 #00000015;
-    }
-    
-    .station-info {
-      text-align: center;
-      font-size: 12px;
-      letter-spacing: 3px;
-      color: var(--olive);
-      border-top: 2px solid var(--grid);
-      border-bottom: 2px solid var(--grid);
-      padding: 10px 0;
-      margin-top: 20px;
-    }
-    
-    .panel {
-      background: var(--paper);
-      border: 2px solid var(--olive);
-      padding: 25px;
-      margin-bottom: 25px;
-      position: relative;
-      box-shadow: 4px 4px 0 #00000008;
-    }
-    
-    .panel-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: 20px;
-      color: var(--brown);
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed var(--grid);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .panel-title::before {
-      content: "▶";
-      color: var(--burnt-orange);
-    }
-    
-    .chart-container {
-      width: 100%;
-      position: relative;
-      background: 
-        linear-gradient(90deg, #d4cfc010 1px, transparent 1px),
-        linear-gradient(180deg, #d4cfc010 1px, transparent 1px);
-      background-size: 20px 20px;
-      padding: 10px;
-      min-height: 350px;
-    }
-    
-    .stamp {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      border: 3px solid var(--rust);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: rotate(-15deg);
-      opacity: 0.3;
-      font-size: 10px;
-      text-align: center;
-      font-weight: bold;
-      color: var(--rust);
-      letter-spacing: 1px;
-    }
-    
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: var(--cream);
-      border: 1px dashed var(--olive);
-    }
-    
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    
-    .control-group label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--olive);
-    }
-    
-    .control-group select,
-    .control-group input {
-      padding: 5px 10px;
-      border: 2px solid var(--olive);
-      background: var(--paper);
-      font-family: 'Courier Prime', monospace;
-      font-size: 12px;
-      color: var(--brown);
-    }
-    
-    .grid-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    
-    @media (max-width: 768px) {
-      .grid-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    .legend {
-      display: flex;
-      gap: 20px;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px dashed var(--grid);
-      font-size: 11px;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .legend-box {
-      width: 20px;
-      height: 12px;
-      border: 1px solid var(--brown);
-    }
-    
-    .footer {
-      margin-top: 40px;
-      padding: 20px;
-      text-align: center;
-      font-size: 10px;
-      color: var(--olive);
-      letter-spacing: 2px;
-    }
-    
-    .tooltip {
-      position: absolute;
-      background: var(--paper);
-      border: 2px solid var(--brown);
-      padding: 8px 12px;
-      font-size: 11px;
-      pointer-events: none;
-      opacity: 0;
-      box-shadow: 3px 3px 0 #00000020;
-      z-index: 1000;
-    }
-    
-    .interactive-note {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--amber);
-      color: var(--brown);
-      padding: 3px 8px;
-      font-size: 9px;
-      letter-spacing: 1px;
-      transform: rotate(2deg);
-      box-shadow: 2px 2px 0 #00000010;
-    }
-    
-    /* Retro data table styles from STYLE.md */
-    .data-table {
-      border-collapse: separate;
-      border-spacing: 0;
-      font-size: 12px;
-      width: 100%;
-      background: var(--paper);
-      color: var(--brown);
-    }
-    .data-table thead {
-      background: var(--olive);
-      color: var(--cream);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-    .data-table th, .data-table td {
-      padding: 6px 8px;
-    }
-    .data-table td {
-      border-bottom: 1px dashed var(--grid);
-      border-right: 1px solid #00000010;
-    }
-    .data-table tbody tr:nth-child(even) {
-      background: #00000005;
-    }
-    /* Grid.js minimal retro adjustments (no Mermaid theme) */
-    .gridjs-container { background: var(--paper); color: var(--brown); }
-    .gridjs-th { user-select: none; }
-    .gridjs-sort { cursor: pointer; }
-    .gridjs-sort::after { content: '↕'; font-size: 10px; margin-left: 6px; color: var(--brown); }
-    .gridjs-sort-asc::after { content: '▲'; }
-    .gridjs-sort-desc::after { content: '▼'; }
-    /* Remove smooth transitions per design principles */
-    * { transition: none !important; }
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Oswald:wght@500&display=swap');
+
+:root {
+  --bg: #f4f1e8;
+  --paper: #fdfcf8;
+  --burnt-orange: #cc5500;
+  --olive: #6b7334;
+  --brown: #5c4033;
+  --cream: #fff8dc;
+  --gold: #daa520;
+  --rust: #b7410e;
+  --amber: #ffbf00;
+  --grid: #d4cfc0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font: 12px/1.35 'Courier Prime', 'Courier New', monospace;
+  background: 
+    repeating-linear-gradient(45deg, transparent, transparent 10px, #00000003 10px, #00000003 20px),
+    linear-gradient(180deg, var(--bg) 0%, #e8e2d0 100%);
+  color: var(--brown);
+  padding: 20px;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 2px 2px, #00000008 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Header */
+.header {
+  background: var(--paper);
+  border: 3px solid var(--brown);
+  padding: 30px;
+  position: relative;
+  margin-bottom: 30px;
+  box-shadow: 5px 5px 0 #00000010, 10px 10px 0 #00000008;
+}
+
+h1 {
+  font: 48px 'Bebas Neue', sans-serif;
+  color: var(--burnt-orange);
+  letter-spacing: 3px;
+  text-align: center;
+  text-shadow: 2px 2px 0 #00000015;
+}
+
+.station-bar {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--olive);
+  border-top: 2px solid var(--grid);
+  border-bottom: 2px solid var(--grid);
+  padding: 10px 0;
+  margin-top: 20px;
+}
+
+.data-status {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--olive);
+  margin-top: 10px;
+}
+
+.stamp {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  border: 3px solid var(--rust);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-12deg);
+  opacity: 0.25;
+  font-size: 9px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--rust);
+  letter-spacing: 1px;
+  line-height: 1.3;
+}
+
+/* Panels */
+.panel {
+  background: var(--paper);
+  border: 2px solid var(--olive);
+  padding: 25px;
+  margin-bottom: 25px;
+  position: relative;
+  box-shadow: 4px 4px 0 #00000008;
+}
+
+.panel-title {
+  font: 18px 'Oswald', sans-serif;
+  color: var(--brown);
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--grid);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-title::before {
+  content: "▶";
+  color: var(--burnt-orange);
+}
+
+.interactive-note {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--amber);
+  color: var(--brown);
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  transform: rotate(2deg);
+  box-shadow: 2px 2px 0 #00000010;
+}
+
+/* Stat cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: var(--cream);
+  border: 2px solid var(--olive);
+  padding: 15px;
+  text-align: center;
+}
+
+.stat-value {
+  font: 32px 'Bebas Neue', sans-serif;
+  color: var(--burnt-orange);
+  letter-spacing: 2px;
+}
+
+.stat-value.cold { color: var(--olive); }
+.stat-value.neutral { color: var(--brown); }
+
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--olive);
+  margin-top: 5px;
+}
+
+.stat-date {
+  font-size: 9px;
+  color: var(--grid);
+  margin-top: 3px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 12px 15px;
+  background: var(--cream);
+  border: 1px dashed var(--olive);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group > label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--olive);
+}
+
+.control-group .radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.control-group .radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.control-group .radio-group input[type="radio"] {
+  accent-color: var(--burnt-orange);
+}
+
+select, input[type="number"] {
+  padding: 5px 10px;
+  border: 2px solid var(--olive);
+  background: var(--paper);
+  font: 12px 'Courier Prime', monospace;
+  color: var(--brown);
+}
+
+input[type="number"] {
+  width: 80px;
+}
+
+button {
+  padding: 6px 12px;
+  border: 2px solid var(--olive);
+  background: var(--olive);
+  color: var(--cream);
+  font: bold 11px 'Courier Prime', monospace;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background: var(--brown);
+  border-color: var(--brown);
+}
+
+button:active {
+  box-shadow: inset 2px 2px 0 #00000030;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* Chart containers */
+.chart-container {
+  width: 100%;
+  position: relative;
+  background: 
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(180deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: -1px -1px;
+  padding: 10px;
+  min-height: 350px;
+}
+
+/* Loading state */
+.chart-container.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container.loading::after {
+  content: "LOADING DATA...";
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--olive);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { opacity: 0.3; }
+}
+
+.chart-container.error::after {
+  content: attr(data-error);
+  color: var(--rust);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* Data tables */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 11px;
+}
+
+.data-table thead {
+  background: var(--olive);
+  color: var(--cream);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.data-table th, .data-table td {
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.data-table th {
+  font-weight: bold;
+}
+
+.data-table td {
+  border-bottom: 1px dashed var(--grid);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: #00000005;
+}
+
+.data-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grid.js overrides */
+.gridjs-wrapper {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.gridjs-container {
+  background: var(--paper);
+  color: var(--brown);
+  font-family: 'Courier Prime', monospace;
+}
+
+.gridjs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 11px;
+}
+
+.gridjs-thead {
+  background: var(--olive);
+}
+
+.gridjs-th {
+  background: var(--olive) !important;
+  color: var(--cream) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  border: none !important;
+  padding: 8px 10px !important;
+}
+
+.gridjs-th-content {
+  font-size: 11px;
+}
+
+.gridjs-td {
+  border: none !important;
+  border-bottom: 1px dashed var(--grid) !important;
+  padding: 6px 10px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.gridjs-tr:nth-child(even) {
+  background: #00000005;
+}
+
+.gridjs-sort {
+  cursor: pointer;
+}
+
+.gridjs-sort::after {
+  content: ' ↕';
+  font-size: 10px;
+  color: var(--cream);
+  opacity: 0.6;
+}
+
+.gridjs-sort-asc::after { content: ' ▲'; opacity: 1; }
+.gridjs-sort-desc::after { content: ' ▼'; opacity: 1; }
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--olive);
+  letter-spacing: 2px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  body { padding: 10px; }
+  
+  h1 { font-size: 36px; }
+  
+  .header { padding: 20px; }
+  
+  .stamp { display: none; }
+  
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .stat-value { font-size: 28px; }
+  
+  .panel { padding: 15px; }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-group .radio-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-group {
+    flex-wrap: wrap;
+  }
+}
+
+/* Kill transitions globally per style guide */
+*, *::before, *::after {
+  transition: none !important;
+}
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
+
+    <!-- Header -->
+    <header class="header">
       <h1>HOUSTON WEATHER STATION</h1>
-      <div class="station-info">
-        GHCND:USW00012918 ◆ HOUSTON WILLIAM P HOBBY AIRPORT, TX US ◆ 29.64586°, -95.28212° ◆ ELEV 13.2 m ◆ GHCN‑DAILY 1990 → PRESENT
+      <div class="station-bar">
+        GHCND:USW00012918 ◆ HOUSTON WILLIAM P HOBBY AIRPORT, TX US ◆ 29.6459°, -95.2821° ◆ ELEV 13.2m
       </div>
-      <div id="dataStatus" class="station-info" style="border:none; margin-top:10px;"></div>
-      <div class="stamp">VERIFIED<br>NOAA<br>1974</div>
-    </div>
+      <div id="dataStatus" class="data-status"></div>
+      <div class="stamp">NOAA<br>GHCN<br>DAILY</div>
+    </header>
+
+    <!-- Summary Stats -->
+    <section class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-value" id="statRecordHigh">--</div>
+        <div class="stat-label">Record High °F</div>
+        <div class="stat-date" id="statRecordHighDate"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value cold" id="statRecordLow">--</div>
+        <div class="stat-label">Record Low °F</div>
+        <div class="stat-date" id="statRecordLowDate"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value neutral" id="statMeanTemp">--</div>
+        <div class="stat-label">Mean Temp °F</div>
+        <div class="stat-date">(all years)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value neutral" id="statDataPoints">--</div>
+        <div class="stat-label">Data Points</div>
+        <div class="stat-date" id="statDateRange"></div>
+      </div>
+    </section>
 
     <!-- Panel: Time Series -->
-    <div class="panel">
-      <div class="panel-title">TEMPERATURE ANALYSIS — DAILY MAX/MIN</div>
-      <div class="interactive-note">HOVER FOR DETAILS</div>
+    <section class="panel">
+      <h2 class="panel-title">TEMPERATURE ANALYSIS — DAILY MAX/MIN</h2>
+      <div class="interactive-note">DRAG TO ZOOM</div>
       <div class="controls">
-        <div class="control-group" style="min-width:240px">
-          <label>VIEW RANGE</label>
-          <div>
-            <button id="btnRangeDefault">DEFAULT</button>
-            <button id="btnRangeAll">ALL</button>
+        <div class="control-group">
+          <label>View Range</label>
+          <div class="btn-group">
+            <button id="btnRangeDefault">2020–PRESENT</button>
+            <button id="btnRangeAll">ALL DATA</button>
           </div>
         </div>
       </div>
-      <div id="chart" class="chart-container"></div>
-    </div>
+      <div id="chart" class="chart-container loading"></div>
+    </section>
 
     <!-- Panel: Ridgeline -->
-    <div class="panel">
-      <div class="panel-title" id="ridgeTitle">RIDGELINE — DAILY MEAN TEMPERATURE BY DAY‑OF‑YEAR</div>
-      <div class="interactive-note">CANONICAL DOY AXIS</div>
-      <div id="ridge" class="chart-container"></div>
-    </div>
+    <section class="panel">
+      <h2 class="panel-title" id="ridgeTitle">RIDGELINE — DAILY MEAN BY DAY-OF-YEAR</h2>
+      <div class="interactive-note">YEAR COMPARISON</div>
+      <div id="ridge" class="chart-container loading"></div>
+    </section>
 
     <!-- Panel: Monthly Summary -->
-    <div class="panel">
-      <div class="panel-title">MONTHLY SUMMARY BY YEAR</div>
+    <section class="panel">
+      <h2 class="panel-title">MONTHLY SUMMARY BY YEAR</h2>
       <div class="controls">
-        <div class="control-group" style="min-width:240px">
+        <div class="control-group">
           <label>Metric</label>
-          <div>
-            <label><input type="radio" name="metric" value="avg_tmax" checked> Avg TMAX</label>
-            <label style="margin-left:10px;"><input type="radio" name="metric" value="avg_tmin"> Avg TMIN</label>
-            <label style="margin-left:10px;"><input type="radio" name="metric" value="rec_tmax"> Record TMAX</label>
-            <label style="margin-left:10px;"><input type="radio" name="metric" value="rec_tmin"> Record TMIN</label>
+          <div class="radio-group">
+            <label><input type="radio" name="metric" value="avg_tmax" checked> Avg High</label>
+            <label><input type="radio" name="metric" value="avg_tmin"> Avg Low</label>
+            <label><input type="radio" name="metric" value="rec_tmax"> Record High</label>
+            <label><input type="radio" name="metric" value="rec_tmin"> Record Low</label>
           </div>
         </div>
         <div class="control-group">
@@ -373,20 +543,23 @@
           <label>Year End</label>
           <input id="yearEnd" type="number" step="1">
         </div>
-        <div class="control-group" style="justify-content:flex-end;">
+        <div class="control-group">
           <label>&nbsp;</label>
-          <div>
+          <div class="btn-group">
             <button id="btnApply">APPLY</button>
-            <button id="btnDownload">DOWNLOAD CSV</button>
+            <button id="btnDownload">EXPORT CSV</button>
           </div>
         </div>
       </div>
       <div id="summary-grid"></div>
-    </div>
+    </section>
 
-    <div class="footer">
-      GHCND:USW00012918 ◆ HOUSTON WILLIAM P HOBBY AIRPORT, TX US ◆ 29.64586°, -95.28212° ◆ ELEV 13.2 m ◆ DATA: NCEI ADS (GHCN‑DAILY) ◆ UPDATED DAILY VIA GITHUB ACTIONS
-    </div>
+    <!-- Footer -->
+    <footer class="footer">
+      DATA: NOAA NCEI GHCN-DAILY ◆ UPDATED DAILY VIA GITHUB ACTIONS ◆ 
+      <a href="https://github.com" style="color: var(--olive);">SOURCE</a>
+    </footer>
+
   </div>
   <script src="./assets/main.js"></script>
 </body>
