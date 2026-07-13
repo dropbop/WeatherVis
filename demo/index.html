@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAILY CLIMATOLOGICAL RECORD — HALLETTS GAP FIELD STATION</title>
+<style>
+:root {
+  --bg: #efe9d8;
+  --paper: #faf7ec;
+  --ink: #4a3527;
+  --olive: #6a7036;
+  --orange: #bf4f00;
+  --rust: #a63a12;
+  --amber: #f2b705;
+  --cream: #fdf3d3;
+  --grid: #d6cfba;
+  --shade1: #e9e3cd;
+  --shade2: #c3b892;
+  --shade3: #93805d;
+  --shade4: #5c4a33;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { transition: none !important; }
+
+html { background: var(--bg); }
+
+body {
+  font: 13px/1.45 "Courier New", Courier, monospace;
+  color: var(--ink);
+  background:
+    repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(0,0,0,0.012) 11px, rgba(0,0,0,0.012) 22px),
+    linear-gradient(180deg, var(--bg) 0%, #e6dfc9 100%);
+  min-height: 100vh;
+  padding: 28px 16px 60px;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 2px 2px, rgba(0,0,0,0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sheet {
+  max-width: 980px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- masthead ---- */
+.masthead {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  padding: 22px 26px 18px;
+  position: relative;
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.07), 10px 10px 0 rgba(0,0,0,0.035);
+  margin-bottom: 28px;
+}
+
+.mast-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.masthead h1 {
+  font-size: 27px;
+  font-weight: bold;
+  letter-spacing: 7px;
+  margin: 14px 0 4px;
+  border-bottom: 3px double var(--ink);
+  padding-bottom: 8px;
+}
+
+.masthead .subtitle {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--olive);
+  margin-bottom: 14px;
+}
+
+.station-block {
+  border-top: 1px solid var(--grid);
+  padding-top: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.station-block b { letter-spacing: 1px; }
+
+.stamp {
+  position: absolute;
+  top: 14px;
+  right: 22px;
+  width: 88px;
+  height: 88px;
+  border: 3px solid var(--rust);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-11deg);
+  opacity: 0.30;
+  color: var(--rust);
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1px;
+  line-height: 1.35;
+  user-select: none;
+}
+
+/* ---- panels ---- */
+.panel {
+  background: var(--paper);
+  border: 2px solid var(--olive);
+  padding: 22px 24px 24px;
+  margin-bottom: 26px;
+  position: relative;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.05), 8px 8px 0 rgba(0,0,0,0.025);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  border-bottom: 1px dashed var(--grid);
+  padding-bottom: 9px;
+  margin-bottom: 16px;
+}
+.panel-title::before { content: "\25B6\00a0"; color: var(--orange); }
+
+.taped-note {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: var(--amber);
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 3px 9px;
+  transform: rotate(2deg);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.08);
+  user-select: none;
+}
+
+/* ---- form rows (dotted leaders) ---- */
+.ledger { max-width: 620px; }
+.ledger-row {
+  display: flex;
+  align-items: baseline;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.ledger-row .lbl { white-space: nowrap; letter-spacing: 1px; }
+.ledger-row .leader {
+  flex: 1;
+  border-bottom: 2px dotted var(--grid);
+  margin: 0 8px;
+  transform: translateY(-3px);
+}
+.ledger-row .val { white-space: nowrap; font-weight: bold; }
+.ledger-row .val.hot  { color: var(--orange); }
+.ledger-row .val.cold { color: var(--olive); }
+.ledger-row .src {
+  white-space: nowrap;
+  color: var(--olive);
+  font-size: 11px;
+  margin-left: 10px;
+  min-width: 150px;
+  text-align: right;
+}
+.ledger-divider {
+  border: none;
+  border-top: 1px solid var(--grid);
+  margin: 10px 0;
+}
+
+/* ---- controls ---- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  background: var(--cream);
+  border: 1px dashed var(--olive);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl > label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--olive);
+  text-transform: uppercase;
+}
+select, input[type="number"] {
+  font: 13px "Courier New", Courier, monospace;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--olive);
+  border-radius: 0;
+  padding: 4px 8px;
+}
+input[type="number"] { width: 84px; }
+select:focus, input:focus, button:focus { outline: 3px solid var(--orange); outline-offset: 1px; }
+
+button {
+  font: bold 11px "Courier New", Courier, monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--olive);
+  border: 2px solid var(--olive);
+  border-radius: 0;
+  padding: 6px 13px;
+  cursor: pointer;
+}
+button:hover { background: var(--ink); border-color: var(--ink); }
+button:active { box-shadow: inset 3px 3px 0 rgba(0,0,0,0.3); }
+.btn-row { display: flex; gap: 8px; }
+
+/* ---- chart ---- */
+.plot-frame {
+  background:
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(180deg, var(--grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+  border: 1px solid var(--grid);
+  padding: 8px;
+}
+.plot-frame svg { display: block; width: 100%; height: auto; cursor: crosshair; }
+
+/* ---- readout strip ---- */
+.readout {
+  margin-top: 12px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 8px 12px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.readout .tag { color: var(--olive); font-weight: bold; }
+.readout .cursor-block {
+  display: inline-block;
+  width: 8px;
+  background: var(--ink);
+  color: var(--ink);
+  animation: blink 1.1s steps(2, start) infinite;
+  margin-left: 4px;
+}
+@keyframes blink { to { opacity: 0; } }
+
+/* ---- loading states ---- */
+.loadable.loading > .content { display: none; }
+.loadable.loading::after {
+  content: attr(data-loading);
+  display: block;
+  padding: 42px 0;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--olive);
+  animation: blink 0.9s steps(2, start) infinite;
+}
+
+/* ---- precipitation ledger ---- */
+.precip-scroll { overflow-x: auto; }
+.precip-ledger {
+  display: grid;
+  grid-template-columns: 34px repeat(12, 26px);
+  gap: 2px;
+  width: max-content;
+  margin: 0 auto;
+}
+.pl-corner, .pl-month, .pl-day {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--olive);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 15px;
+}
+.pl-day { justify-content: flex-end; padding-right: 6px; }
+.pl-cell {
+  height: 15px;
+  cursor: crosshair;
+  position: relative;
+}
+.pl-cell.b0 { background: var(--paper); border: 1px solid var(--grid); }
+.pl-cell.b1 { background: var(--shade1); }
+.pl-cell.b2 { background: var(--shade2); }
+.pl-cell.b3 { background: var(--shade3); }
+.pl-cell.b4 { background: var(--shade4); }
+.pl-cell.void {
+  background: var(--bg);
+  border: none;
+}
+.pl-cell.void::after {
+  content: "\00d7";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--grid);
+  font-size: 10px;
+}
+.pl-cell.missing {
+  background: repeating-linear-gradient(45deg, var(--paper), var(--paper) 2px, var(--grid) 2px, var(--grid) 4px);
+  border: 1px solid var(--grid);
+}
+.pl-cell.future { background: var(--bg); border: 1px dashed var(--grid); }
+.pl-cell:hover { outline: 2px solid var(--orange); outline-offset: -1px; z-index: 3; }
+.pl-cell.pinned { outline: 2px solid var(--rust); outline-offset: 0; z-index: 2; }
+
+.precip-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 14px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--olive);
+}
+.precip-key .k { display: flex; align-items: center; gap: 5px; }
+.precip-key .sw { width: 13px; height: 13px; display: inline-block; }
+
+.margin-note {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--rust);
+  border-left: 3px solid var(--rust);
+  padding-left: 10px;
+}
+
+/* ---- abstract table ---- */
+table.abstract {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+.abstract thead th {
+  background: var(--olive);
+  color: var(--cream);
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 10px;
+  padding: 7px 10px;
+  text-align: right;
+}
+.abstract thead th:first-child { text-align: left; }
+.abstract td {
+  padding: 5px 10px;
+  border-bottom: 1px dashed var(--grid);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.abstract td:first-child { text-align: left; letter-spacing: 1px; }
+.abstract tbody tr:nth-child(even) { background: rgba(0,0,0,0.025); }
+.abstract tbody tr:hover { background: var(--cream); outline: 1px solid var(--orange); outline-offset: -1px; }
+.abstract td.gap { color: var(--rust); }
+.abstract tfoot td {
+  border-top: 2px solid var(--ink);
+  border-bottom: none;
+  font-weight: bold;
+  padding-top: 7px;
+}
+
+/* ---- footer ---- */
+.colophon {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--olive);
+  margin-top: 40px;
+  line-height: 2;
+}
+
+@media (max-width: 640px) {
+  body { padding: 12px 8px 40px; }
+  .masthead { padding: 16px; }
+  .masthead h1 { font-size: 19px; letter-spacing: 3px; }
+  .stamp { display: none; }
+  .panel { padding: 14px; }
+  .controls { flex-direction: column; align-items: stretch; }
+  .ledger-row .src { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="mast-row">
+      <span>BUREAU OF CLIMATOLOGICAL RECORD &mdash; DISTRICT 7</span>
+      <span>FORM CR-31 (REV. 4/71)</span>
+    </div>
+    <h1>DAILY CLIMATOLOGICAL RECORD</h1>
+    <div class="subtitle">COOPERATIVE OBSERVER PROGRAM &middot; PERMANENT FILE COPY &middot; DO NOT REMOVE</div>
+    <div class="station-block">
+      <div><b>STATION:</b> HALLETTS GAP FIELD STATION NO. 2, ELLIS CO., KANSAS &middot; <b>INDEX</b> 14-3877-02</div>
+      <div><b>LAT</b> 38&deg;41'N &nbsp; <b>LONG</b> 99&deg;19'W &nbsp; <b>GROUND ELEV</b> 2,081 FT &nbsp; <b>GAUGE</b> 8-IN STANDARD</div>
+      <div><b>PERIOD OF RECORD:</b> 1 JAN 1961 &mdash; <span id="periodEnd">PRESENT</span> &nbsp;&middot;&nbsp; <span id="obsCount">&mdash;</span> OBSERVATIONS ON FILE</div>
+    </div>
+    <div class="stamp">FILED<br><span id="stampDate">&mdash;</span><br>VERIFIED</div>
+  </header>
+
+  <!-- SECTION A -->
+  <section class="panel loadable loading" id="secA" data-loading="COMPILING RECORD&hellip;">
+    <div class="content">
+      <h2 class="panel-title" id="secATitle">SECTION A &mdash; OBSERVATIONS FOR THIS DATE</h2>
+      <div class="ledger" id="otdLedger"></div>
+      <hr class="ledger-divider">
+      <div class="ledger" id="allTimeLedger"></div>
+    </div>
+  </section>
+
+  <!-- SECTION B -->
+  <section class="panel loadable loading" id="secB" data-loading="DRAFTING PLOT&hellip;">
+    <div class="taped-note">TRACE WITH CURSOR</div>
+    <div class="content">
+      <h2 class="panel-title">SECTION B &mdash; DAILY TEMPERATURE TRACE, MAX / MIN (&deg;F)</h2>
+      <div class="controls">
+        <div class="ctl">
+          <label>Ledger Year</label>
+          <select id="plotYear"></select>
+        </div>
+        <div class="ctl">
+          <label>&nbsp;</label>
+          <div class="btn-row">
+            <button id="plotPrev" type="button">&laquo; PREV</button>
+            <button id="plotNext" type="button">NEXT &raquo;</button>
+          </div>
+        </div>
+      </div>
+      <div class="plot-frame" id="plotFrame"></div>
+      <div class="readout" id="plotReadout"><span class="tag">READOUT &#9656;</span> AWAITING CURSOR &mdash; TRACE THE PLOT TO READ THE LEDGER<span class="cursor-block">&nbsp;</span></div>
+    </div>
+  </section>
+
+  <!-- SECTION C -->
+  <section class="panel loadable loading" id="secC" data-loading="POSTING ENTRIES&hellip;">
+    <div class="taped-note">CLICK TO PIN AN ENTRY</div>
+    <div class="content">
+      <h2 class="panel-title">SECTION C &mdash; PRECIPITATION LEDGER (INCHES, 24-HR TOTALS)</h2>
+      <div class="controls">
+        <div class="ctl">
+          <label>Ledger Year</label>
+          <select id="precipYear"></select>
+        </div>
+      </div>
+      <div class="precip-scroll">
+        <div class="precip-ledger" id="precipLedger"></div>
+      </div>
+      <div class="precip-key">
+        <span>SHADING:</span>
+        <span class="k"><span class="sw" style="background:var(--paper);border:1px solid var(--grid)"></span>NONE</span>
+        <span class="k"><span class="sw" style="background:var(--shade1)"></span>TRACE&ndash;0.09</span>
+        <span class="k"><span class="sw" style="background:var(--shade2)"></span>0.10&ndash;0.49</span>
+        <span class="k"><span class="sw" style="background:var(--shade3)"></span>0.50&ndash;1.99</span>
+        <span class="k"><span class="sw" style="background:var(--shade4)"></span>2.00+</span>
+        <span class="k"><span class="sw" style="background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 2px,var(--grid) 2px,var(--grid) 4px);border:1px solid var(--grid)"></span>NO OBSERVATION</span>
+      </div>
+      <div class="margin-note" id="outageNote" hidden>NOTE &mdash; RECORDER OUT OF SERVICE 4 AUG THRU 2 SEP 1974. STATION MOVED 0.4 MI NE OF ORIGINAL SITE. SEE STATION LOG, P. 114.</div>
+      <div class="readout" id="precipReadout"><span class="tag">READOUT &#9656;</span> AWAITING CURSOR<span class="cursor-block">&nbsp;</span></div>
+    </div>
+  </section>
+
+  <!-- SECTION D -->
+  <section class="panel loadable loading" id="secD" data-loading="TOTALING COLUMNS&hellip;">
+    <div class="content">
+      <h2 class="panel-title">SECTION D &mdash; MONTHLY ABSTRACT</h2>
+      <div class="controls">
+        <div class="ctl">
+          <label>From Year</label>
+          <input type="number" id="absFrom" step="1">
+        </div>
+        <div class="ctl">
+          <label>Thru Year</label>
+          <input type="number" id="absThru" step="1">
+        </div>
+        <div class="ctl">
+          <label>&nbsp;</label>
+          <div class="btn-row">
+            <button id="absApply" type="button">POST</button>
+            <button id="absExport" type="button">EXPORT CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="abstractWrap"></div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    COMPILED FROM STATION LEDGERS &middot; ERRORS AND OMISSIONS EXCEPTED<br>
+    OBSERVATIONS TAKEN AT 1800 LST &middot; TEMPERATURES IN &deg;F &middot; PRECIPITATION IN INCHES AND HUNDREDTHS<br>
+    FORM CR-31 &middot; SUPERSEDES FORM CR-29 WHICH MAY BE USED UNTIL EXHAUSTED
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   STATION LEDGER — deterministic synthetic record, 1961–present
+   ===================================================================== */
+
+const START_YEAR = 1961;
+const NOW = new Date();
+const CUR = { y: NOW.getFullYear(), m: NOW.getMonth() + 1, d: NOW.getDate() };
+const M3 = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const MFULL = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+
+function hash32(n) {
+  n = n | 0;
+  n = (n ^ 61) ^ (n >>> 16);
+  n = (n + (n << 3)) | 0;
+  n = n ^ (n >>> 4);
+  n = Math.imul(n, 0x27d4eb2d);
+  n = n ^ (n >>> 15);
+  return (n >>> 0) / 4294967296;
+}
+function rnd(y, m, d, salt) {
+  return hash32(((y * 372 + m * 31 + d) ^ Math.imul(salt, 2654435761)) | 0);
+}
+function daysInMonth(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+function isLeap(y) { return y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0); }
+function doyOf(y, m, d) {
+  const CUM = [0,31,59,90,120,151,181,212,243,273,304,334];
+  return CUM[m - 1] + d + (m > 2 && isLeap(y) ? 1 : 0);
+}
+function isFuture(y, m, d) {
+  return y > CUR.y || (y === CUR.y && (m > CUR.m || (m === CUR.m && d > CUR.d)));
+}
+
+const WET_PROB = [0.13, 0.14, 0.19, 0.24, 0.28, 0.25, 0.20, 0.19, 0.21, 0.18, 0.14, 0.13];
+
+function obs(y, m, d) {
+  if (isFuture(y, m, d)) return { future: true };
+  // recorder outage, Aug–Sep 1974 (station relocation)
+  if ((y === 1974 && m === 8 && d >= 4) || (y === 1974 && m === 9 && d <= 2)) return { missing: true };
+  if (rnd(y, m, d, 9) < 0.011) return { missing: true };
+
+  const doy = doyOf(y, m, d);
+  const yearLen = isLeap(y) ? 366 : 365;
+  const t = ((doy - 197) / yearLen) * 2 * Math.PI;
+  const seasMax = 66.5 + 26.5 * Math.cos(t);
+  const seasMin = 42.5 + 25.5 * Math.cos(t);
+  const wk = Math.floor(doy / 6);
+  const airmass = (hash32((y * 61 + wk * 7919) | 0) - 0.5) * 2;   // week-scale swings
+  const n1 = (rnd(y, m, d, 1) - 0.5) * 2;
+  const n2 = (rnd(y, m, d, 2) - 0.5) * 2;
+
+  let tmax = Math.round(seasMax + airmass * 8 + n1 * 8);
+  let tmin = Math.round(seasMin + airmass * 6 + n2 * 6);
+  // arctic outbreaks — the entries the clerk underlined twice
+  if ((m <= 2 || m >= 11) && rnd(y, m, d, 8) < 0.045) {
+    const snap = rnd(y, m, d, 10) * 24 + 8;
+    tmax = Math.round(tmax - snap * 0.7);
+    tmin = Math.round(tmin - snap);
+  }
+  if (tmin > tmax - 7) tmin = tmax - 7 - Math.round(rnd(y, m, d, 5) * 5);
+
+  let pcpn = 0;
+  if (rnd(y, m, d, 3) < WET_PROB[m - 1]) {
+    pcpn = -Math.log(1 - rnd(y, m, d, 4) * 0.999) * 0.42 + 0.01;
+    if (m >= 5 && m <= 9 && rnd(y, m, d, 6) < 0.06) pcpn += rnd(y, m, d, 7) * 2.4; // convective dump
+    pcpn = Math.min(Math.round(pcpn * 100) / 100, 6.4);
+    if (pcpn > 0.1) tmax -= Math.round(Math.min(pcpn, 2) * 3);
+  }
+  return { tmax, tmin, pcpn };
+}
+
+function fmtDate(y, m, d) { return d + " " + M3[m - 1] + " " + y; }
+function pcpnBin(p) {
+  if (p <= 0) return 0;
+  if (p < 0.10) return 1;
+  if (p < 0.50) return 2;
+  if (p < 2.00) return 3;
+  return 4;
+}
+
+/* =====================================================================
+   SECTION A — this date + period records
+   ===================================================================== */
+
+function ledgerRow(label, value, valClass, source) {
+  return '<div class="ledger-row"><span class="lbl">' + label + '</span>' +
+    '<span class="leader"></span><span class="val ' + (valClass || "") + '">' + value + '</span>' +
+    '<span class="src">' + (source || "") + '</span></div>';
+}
+
+function renderSectionA() {
+  const m = CUR.m, d = CUR.d;
+  let recHi = -999, recHiY = null, recLo = 999, recLoY = null;
+  let sumHi = 0, sumLo = 0, n = 0;
+  for (let y = START_YEAR; y <= CUR.y; y++) {
+    if (d > daysInMonth(y, m)) continue;
+    const o = obs(y, m, d);
+    if (o.missing || o.future) continue;
+    n++;
+    sumHi += o.tmax; sumLo += o.tmin;
+    if (o.tmax > recHi) { recHi = o.tmax; recHiY = y; }
+    if (o.tmin < recLo) { recLo = o.tmin; recLoY = y; }
+  }
+  document.getElementById("secATitle").textContent =
+    "SECTION A — OBSERVATIONS FOR " + d + " " + MFULL[m - 1] + ", ALL YEARS OF RECORD";
+  document.getElementById("otdLedger").innerHTML =
+    ledgerRow("RECORD MAXIMUM, THIS DATE", recHi + "°F", "hot", "SET " + fmtDate(recHiY, m, d)) +
+    ledgerRow("RECORD MINIMUM, THIS DATE", recLo + "°F", "cold", "SET " + fmtDate(recLoY, m, d)) +
+    ledgerRow("NORMAL MAXIMUM", Math.round(sumHi / n) + "°F", "", START_YEAR + "–" + CUR.y + " MEAN") +
+    ledgerRow("NORMAL MINIMUM", Math.round(sumLo / n) + "°F", "", START_YEAR + "–" + CUR.y + " MEAN") +
+    ledgerRow("YEARS REPORTING, THIS DATE", String(n), "", "OF " + (CUR.y - START_YEAR + 1) + " POSSIBLE");
+
+  // all-time sweep
+  let aHi = -999, aHiD = null, aLo = 999, aLoD = null, aWet = 0, aWetD = null, total = 0;
+  for (let y = START_YEAR; y <= CUR.y; y++) {
+    for (let mm = 1; mm <= 12; mm++) {
+      const dim = daysInMonth(y, mm);
+      for (let dd = 1; dd <= dim; dd++) {
+        const o = obs(y, mm, dd);
+        if (o.future) break;
+        if (o.missing) continue;
+        total++;
+        if (o.tmax > aHi) { aHi = o.tmax; aHiD = [y, mm, dd]; }
+        if (o.tmin < aLo) { aLo = o.tmin; aLoD = [y, mm, dd]; }
+        if (o.pcpn > aWet) { aWet = o.pcpn; aWetD = [y, mm, dd]; }
+      }
+    }
+  }
+  document.getElementById("allTimeLedger").innerHTML =
+    ledgerRow("PERIOD RECORD MAXIMUM", aHi + "°F", "hot", fmtDate(aHiD[0], aHiD[1], aHiD[2])) +
+    ledgerRow("PERIOD RECORD MINIMUM", (aLo < 0 ? "−" + Math.abs(aLo) : aLo) + "°F", "cold", fmtDate(aLoD[0], aLoD[1], aLoD[2])) +
+    ledgerRow("GREATEST 24-HR PRECIPITATION", aWet.toFixed(2) + " IN", "", fmtDate(aWetD[0], aWetD[1], aWetD[2]));
+  document.getElementById("obsCount").textContent = total.toLocaleString("en-US");
+}
+
+/* =====================================================================
+   SECTION B — temperature trace (hand-drawn SVG)
+   ===================================================================== */
+
+const PLOT = { W: 940, H: 330, padL: 48, padR: 14, padT: 14, padB: 32, yMin: -20, yMax: 115 };
+let plotDays = [];   // per-doy obs for selected year
+let plotYearSel = CUR.y;
+
+function px(doy, n) {
+  return PLOT.padL + ((doy - 1) / (n - 1)) * (PLOT.W - PLOT.padL - PLOT.padR);
+}
+function py(v) {
+  return PLOT.padT + ((PLOT.yMax - v) / (PLOT.yMax - PLOT.yMin)) * (PLOT.H - PLOT.padT - PLOT.padB);
+}
+
+function buildPath(vals, n, key) {
+  let d = "", pen = false;
+  for (let i = 0; i < n; i++) {
+    const o = vals[i];
+    if (!o || o.missing || o.future) { pen = false; continue; }
+    const x = px(i + 1, n).toFixed(1), y = py(o[key]).toFixed(1);
+    d += (pen ? "L" : "M") + x + " " + y;
+    pen = true;
+  }
+  return d;
+}
+
+function buildBand(vals, n) {
+  // halftone fill between max and min over contiguous runs
+  let polys = "", run = [];
+  const flush = () => {
+    if (run.length > 1) {
+      const top = run.map(i => px(i + 1, n).toFixed(1) + "," + py(vals[i].tmax).toFixed(1));
+      const bot = run.slice().reverse().map(i => px(i + 1, n).toFixed(1) + "," + py(vals[i].tmin).toFixed(1));
+      polys += '<polygon points="' + top.concat(bot).join(" ") + '" fill="url(#halftone)" stroke="none"/>';
+    }
+    run = [];
+  };
+  for (let i = 0; i < n; i++) {
+    const o = vals[i];
+    if (!o || o.missing || o.future) flush(); else run.push(i);
+  }
+  flush();
+  return polys;
+}
+
+function renderPlot(year) {
+  plotYearSel = year;
+  const n = isLeap(year) ? 366 : 365;
+  plotDays = [];
+  for (let m = 1; m <= 12; m++) {
+    const dim = daysInMonth(year, m);
+    for (let d = 1; d <= dim; d++) plotDays.push(Object.assign({ m, d }, obs(year, m, d)));
+  }
+
+  let g = "";
+  // horizontal rules + labels
+  for (let v = -20; v <= 110; v += 20) {
+    g += '<line x1="' + PLOT.padL + '" y1="' + py(v) + '" x2="' + (PLOT.W - PLOT.padR) + '" y2="' + py(v) +
+         '" stroke="#d6cfba" stroke-width="1" stroke-dasharray="4 4"/>' +
+         '<text x="' + (PLOT.padL - 7) + '" y="' + (py(v) + 4) + '" text-anchor="end" font-size="10" ' +
+         'font-family="Courier New,monospace" fill="#6a7036">' + (v < 0 ? "−" + Math.abs(v) : v) + '</text>';
+  }
+  // month ticks
+  let cum = 0;
+  for (let m = 1; m <= 12; m++) {
+    const x = px(cum + 1, n);
+    g += '<line x1="' + x + '" y1="' + PLOT.padT + '" x2="' + x + '" y2="' + (PLOT.H - PLOT.padB) +
+         '" stroke="#d6cfba" stroke-width="1" stroke-dasharray="2 5"/>' +
+         '<text x="' + (x + 3) + '" y="' + (PLOT.H - PLOT.padB + 16) + '" font-size="10" ' +
+         'font-family="Courier New,monospace" letter-spacing="1" fill="#6a7036">' + M3[m - 1] + '</text>';
+    cum += daysInMonth(year, m);
+  }
+  // freezing rule, drawn heavier — the line the clerk cared about
+  g += '<line x1="' + PLOT.padL + '" y1="' + py(32) + '" x2="' + (PLOT.W - PLOT.padR) + '" y2="' + py(32) +
+       '" stroke="#a63a12" stroke-width="1.5" stroke-dasharray="7 4" opacity="0.6"/>' +
+       '<text x="' + (PLOT.W - PLOT.padR - 4) + '" y="' + (py(32) - 5) + '" text-anchor="end" font-size="9" ' +
+       'font-family="Courier New,monospace" letter-spacing="1" fill="#a63a12" opacity="0.8">FREEZING 32°</text>';
+
+  g += buildBand(plotDays, n);
+  g += '<path d="' + buildPath(plotDays, n, "tmax") + '" fill="none" stroke="#bf4f00" stroke-width="1.6"/>';
+  g += '<path d="' + buildPath(plotDays, n, "tmin") + '" fill="none" stroke="#6a7036" stroke-width="1.6" stroke-dasharray="5 3"/>';
+
+  // axes
+  g += '<line x1="' + PLOT.padL + '" y1="' + PLOT.padT + '" x2="' + PLOT.padL + '" y2="' + (PLOT.H - PLOT.padB) + '" stroke="#4a3527" stroke-width="2"/>';
+  g += '<line x1="' + PLOT.padL + '" y1="' + (PLOT.H - PLOT.padB) + '" x2="' + (PLOT.W - PLOT.padR) + '" y2="' + (PLOT.H - PLOT.padB) + '" stroke="#4a3527" stroke-width="2"/>';
+
+  // crosshair group
+  g += '<g id="xhair" visibility="hidden">' +
+       '<line id="xhairLine" x1="0" y1="' + PLOT.padT + '" x2="0" y2="' + (PLOT.H - PLOT.padB) + '" stroke="#4a3527" stroke-width="1" stroke-dasharray="3 3"/>' +
+       '<rect id="xhairMax" width="6" height="6" fill="#bf4f00" stroke="#faf7ec" stroke-width="1"/>' +
+       '<rect id="xhairMin" width="6" height="6" fill="#6a7036" stroke="#faf7ec" stroke-width="1"/>' +
+       '</g>';
+
+  document.getElementById("plotFrame").innerHTML =
+    '<svg id="plotSvg" viewBox="0 0 ' + PLOT.W + ' ' + PLOT.H + '" role="img" aria-label="Daily maximum and minimum temperature trace, ' + year + '">' +
+    '<defs><pattern id="halftone" width="6" height="6" patternUnits="userSpaceOnUse">' +
+    '<circle cx="1.6" cy="1.6" r="1.05" fill="rgba(74,53,39,0.11)"/></pattern></defs>' + g + '</svg>';
+
+  const svg = document.getElementById("plotSvg");
+  svg.addEventListener("mousemove", onPlotMove);
+  svg.addEventListener("mouseleave", onPlotLeave);
+  document.getElementById("plotYear").value = String(year);
+  setReadout("plotReadout", "READOUT ▸", year + " SHEET MOUNTED — TRACE THE PLOT TO READ THE LEDGER");
+}
+
+function setReadout(id, tag, text) {
+  document.getElementById(id).innerHTML =
+    '<span class="tag">' + tag + '</span> ' + text + '<span class="cursor-block">&nbsp;</span>';
+}
+
+function onPlotMove(e) {
+  const svg = document.getElementById("plotSvg");
+  const r = svg.getBoundingClientRect();
+  const n = plotDays.length;
+  const x = ((e.clientX - r.left) / r.width) * PLOT.W;
+  let doy = Math.round(((x - PLOT.padL) / (PLOT.W - PLOT.padL - PLOT.padR)) * (n - 1)) + 1;
+  doy = Math.max(1, Math.min(n, doy));
+  const o = plotDays[doy - 1];
+  const gx = px(doy, n);
+  const grp = document.getElementById("xhair");
+  grp.setAttribute("visibility", "visible");
+  const line = document.getElementById("xhairLine");
+  line.setAttribute("x1", gx); line.setAttribute("x2", gx);
+  const dateStr = o.d + " " + M3[o.m - 1] + " " + plotYearSel;
+  const maxR = document.getElementById("xhairMax"), minR = document.getElementById("xhairMin");
+  if (o.future) {
+    maxR.setAttribute("visibility", "hidden"); minR.setAttribute("visibility", "hidden");
+    setReadout("plotReadout", "READOUT ▸", dateStr + " — NOT YET OBSERVED");
+  } else if (o.missing) {
+    maxR.setAttribute("visibility", "hidden"); minR.setAttribute("visibility", "hidden");
+    setReadout("plotReadout", "READOUT ▸", dateStr + " — NO OBSERVATION FILED. SEE STATION LOG.");
+  } else {
+    maxR.setAttribute("visibility", "visible"); minR.setAttribute("visibility", "visible");
+    maxR.setAttribute("x", gx - 3); maxR.setAttribute("y", py(o.tmax) - 3);
+    minR.setAttribute("x", gx - 3); minR.setAttribute("y", py(o.tmin) - 3);
+    setReadout("plotReadout", "READOUT ▸",
+      dateStr + " · MAX " + o.tmax + "°F · MIN " + o.tmin + "°F · PCPN " + o.pcpn.toFixed(2) + " IN");
+  }
+}
+
+function onPlotLeave() {
+  document.getElementById("xhair").setAttribute("visibility", "hidden");
+  setReadout("plotReadout", "READOUT ▸", "CURSOR LIFTED — LAST ENTRY RETIRED TO FILE");
+}
+
+/* =====================================================================
+   SECTION C — precipitation ledger (days down, months across)
+   ===================================================================== */
+
+let pinnedKey = null;
+
+function renderPrecip(year) {
+  const root = document.getElementById("precipLedger");
+  let h = '<div class="pl-corner">DAY</div>';
+  for (let m = 1; m <= 12; m++) h += '<div class="pl-month">' + M3[m - 1] + '</div>';
+  for (let d = 1; d <= 31; d++) {
+    h += '<div class="pl-day">' + d + '</div>';
+    for (let m = 1; m <= 12; m++) {
+      if (d > daysInMonth(year, m)) { h += '<div class="pl-cell void" aria-hidden="true"></div>'; continue; }
+      const o = obs(year, m, d);
+      let cls, label;
+      if (o.future)      { cls = "future";  label = "not yet observed"; }
+      else if (o.missing){ cls = "missing"; label = "no observation filed"; }
+      else               { cls = "b" + pcpnBin(o.pcpn); label = o.pcpn.toFixed(2) + " inches"; }
+      const key = year + "-" + m + "-" + d;
+      h += '<div class="pl-cell ' + cls + (key === pinnedKey ? " pinned" : "") +
+           '" data-m="' + m + '" data-d="' + d + '" tabindex="0" role="button" aria-label="' +
+           d + " " + M3[m - 1] + " " + year + ", " + label + '"></div>';
+    }
+  }
+  root.innerHTML = h;
+  document.getElementById("outageNote").hidden = (year !== 1974);
+  document.getElementById("precipYear").value = String(year);
+  setReadout("precipReadout", "READOUT ▸", year + " LEDGER POSTED — " + (year === CUR.y ? "OPEN FOR ENTRY" : "CLOSED AND TOTALED"));
+}
+
+function precipCellText(year, m, d) {
+  const o = obs(year, m, d);
+  const dateStr = d + " " + M3[m - 1] + " " + year;
+  if (o.future) return dateStr + " — NOT YET OBSERVED";
+  if (o.missing) return dateStr + " — NO OBSERVATION FILED. SEE STATION LOG.";
+  if (o.pcpn <= 0) return dateStr + " · PCPN 0.00 IN — DRY · MAX " + o.tmax + "°F · MIN " + o.tmin + "°F";
+  return dateStr + " · PCPN " + o.pcpn.toFixed(2) + " IN · MAX " + o.tmax + "°F · MIN " + o.tmin + "°F";
+}
+
+function wirePrecip() {
+  const root = document.getElementById("precipLedger");
+  root.addEventListener("mouseover", (e) => {
+    const c = e.target.closest(".pl-cell");
+    if (!c || c.classList.contains("void")) return;
+    const year = parseInt(document.getElementById("precipYear").value, 10);
+    setReadout("precipReadout", "READOUT ▸", precipCellText(year, +c.dataset.m, +c.dataset.d));
+  });
+  root.addEventListener("mouseleave", () => {
+    if (pinnedKey) {
+      const [y, m, d] = pinnedKey.split("-").map(Number);
+      setReadout("precipReadout", "PINNED ▸", precipCellText(y, m, d));
+    } else {
+      setReadout("precipReadout", "READOUT ▸", "CURSOR LIFTED");
+    }
+  });
+  const act = (c) => {
+    if (!c || c.classList.contains("void")) return;
+    const year = parseInt(document.getElementById("precipYear").value, 10);
+    const key = year + "-" + c.dataset.m + "-" + c.dataset.d;
+    root.querySelectorAll(".pl-cell.pinned").forEach(el => el.classList.remove("pinned"));
+    if (pinnedKey === key) { pinnedKey = null; setReadout("precipReadout", "READOUT ▸", "ENTRY UNPINNED"); return; }
+    pinnedKey = key;
+    c.classList.add("pinned");
+    setReadout("precipReadout", "PINNED ▸", precipCellText(year, +c.dataset.m, +c.dataset.d));
+  };
+  root.addEventListener("click", (e) => act(e.target.closest(".pl-cell")));
+  root.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(e.target.closest(".pl-cell")); }
+  });
+}
+
+/* =====================================================================
+   SECTION D — monthly abstract + CSV export
+   ===================================================================== */
+
+function monthStats(y1, y2, m) {
+  let sHi = 0, sLo = 0, n = 0, rHi = -999, rLo = 999, pc = 0, miss = 0;
+  for (let y = y1; y <= y2; y++) {
+    const dim = daysInMonth(y, m);
+    for (let d = 1; d <= dim; d++) {
+      const o = obs(y, m, d);
+      if (o.future) continue;
+      if (o.missing) { miss++; continue; }
+      n++; sHi += o.tmax; sLo += o.tmin; pc += o.pcpn;
+      if (o.tmax > rHi) rHi = o.tmax;
+      if (o.tmin < rLo) rLo = o.tmin;
+    }
+  }
+  if (n === 0) return null;
+  return {
+    meanHi: sHi / n, meanLo: sLo / n, recHi: rHi, recLo: rLo,
+    pcpn: pc / (y2 - y1 + 1), obs: n, miss
+  };
+}
+
+function renderAbstract(y1, y2) {
+  let rows = "", tObs = 0, tMiss = 0, tPc = 0;
+  for (let m = 1; m <= 12; m++) {
+    const s = monthStats(y1, y2, m);
+    if (!s) { rows += "<tr><td>" + MFULL[m - 1] + '</td><td colspan="7" class="gap">— NO ENTRIES IN RANGE —</td></tr>'; continue; }
+    tObs += s.obs; tMiss += s.miss; tPc += s.pcpn;
+    rows += "<tr><td>" + MFULL[m - 1] + "</td>" +
+      "<td>" + s.meanHi.toFixed(1) + "</td><td>" + s.meanLo.toFixed(1) + "</td>" +
+      "<td>" + s.recHi + "</td><td>" + (s.recLo < 0 ? "−" + Math.abs(s.recLo) : s.recLo) + "</td>" +
+      "<td>" + s.pcpn.toFixed(2) + "</td><td>" + s.obs.toLocaleString("en-US") + "</td>" +
+      '<td class="' + (s.miss ? "gap" : "") + '">' + s.miss + "</td></tr>";
+  }
+  document.getElementById("abstractWrap").innerHTML =
+    '<table class="abstract"><thead><tr>' +
+    "<th>MONTH</th><th>MEAN MAX °F</th><th>MEAN MIN °F</th><th>REC MAX</th><th>REC MIN</th>" +
+    "<th>MEAN PCPN IN</th><th>OBS</th><th>GAPS</th>" +
+    "</tr></thead><tbody>" + rows + "</tbody><tfoot><tr>" +
+    "<td>ANNUAL</td><td colspan=\"4\"></td><td>" + tPc.toFixed(2) + "</td>" +
+    "<td>" + tObs.toLocaleString("en-US") + "</td><td>" + tMiss + "</td>" +
+    "</tr></tfoot></table>";
+}
+
+function exportCSV() {
+  const y1 = clampYear(+document.getElementById("absFrom").value);
+  const y2 = clampYear(+document.getElementById("absThru").value);
+  const lines = ["station_index,month,years,mean_max_f,mean_min_f,record_max_f,record_min_f,mean_pcpn_in,observations,gaps"];
+  for (let m = 1; m <= 12; m++) {
+    const s = monthStats(Math.min(y1, y2), Math.max(y1, y2), m);
+    if (!s) continue;
+    lines.push(["14-3877-02", M3[m - 1], Math.min(y1, y2) + "-" + Math.max(y1, y2),
+      s.meanHi.toFixed(1), s.meanLo.toFixed(1), s.recHi, s.recLo, s.pcpn.toFixed(2), s.obs, s.miss].join(","));
+  }
+  const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "halletts-gap_monthly-abstract_" + Math.min(y1, y2) + "-" + Math.max(y1, y2) + ".csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clampYear(y) {
+  if (!Number.isFinite(y)) return CUR.y;
+  return Math.max(START_YEAR, Math.min(CUR.y, Math.round(y)));
+}
+
+/* =====================================================================
+   ASSEMBLY — sections posted in order, like pages typed one at a time
+   ===================================================================== */
+
+function fillYearSelect(sel) {
+  let h = "";
+  for (let y = CUR.y; y >= START_YEAR; y--) h += "<option value=\"" + y + "\">" + y + "</option>";
+  sel.innerHTML = h;
+}
+
+document.getElementById("stampDate").textContent =
+  M3[CUR.m - 1] + " " + CUR.d + " " + CUR.y;
+document.getElementById("periodEnd").textContent = fmtDate(CUR.y, CUR.m, CUR.d);
+
+fillYearSelect(document.getElementById("plotYear"));
+fillYearSelect(document.getElementById("precipYear"));
+document.getElementById("absFrom").value = CUR.y - 9;
+document.getElementById("absThru").value = CUR.y;
+document.getElementById("absFrom").min = START_YEAR;
+document.getElementById("absThru").min = START_YEAR;
+document.getElementById("absFrom").max = CUR.y;
+document.getElementById("absThru").max = CUR.y;
+
+document.getElementById("plotYear").addEventListener("change", e => renderPlot(+e.target.value));
+document.getElementById("plotPrev").addEventListener("click", () => {
+  if (plotYearSel > START_YEAR) renderPlot(plotYearSel - 1);
+});
+document.getElementById("plotNext").addEventListener("click", () => {
+  if (plotYearSel < CUR.y) renderPlot(plotYearSel + 1);
+});
+document.getElementById("precipYear").addEventListener("change", e => { pinnedKey = null; renderPrecip(+e.target.value); });
+document.getElementById("absApply").addEventListener("click", () => {
+  const y1 = clampYear(+document.getElementById("absFrom").value);
+  const y2 = clampYear(+document.getElementById("absThru").value);
+  document.getElementById("absFrom").value = Math.min(y1, y2);
+  document.getElementById("absThru").value = Math.max(y1, y2);
+  renderAbstract(Math.min(y1, y2), Math.max(y1, y2));
+});
+document.getElementById("absExport").addEventListener("click", exportCSV);
+wirePrecip();
+
+const stages = [
+  ["secA", () => renderSectionA()],
+  ["secB", () => renderPlot(CUR.y)],
+  ["secC", () => renderPrecip(CUR.y)],
+  ["secD", () => renderAbstract(CUR.y - 9, CUR.y)]
+];
+stages.forEach(([id, fn], i) => {
+  setTimeout(() => {
+    fn();
+    document.getElementById(id).classList.remove("loading");
+  }, 260 + i * 340);
+});
+</script>
+</body>
+</html>
