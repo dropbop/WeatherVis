@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-09-07T12:29:43.934615+00:00",
+  "generatedAt": "2026-09-08T11:16:37.688134+00:00",
   "station": "USW00012918",
   "units": "standard",
   "startDate": "1990-01-01",
-  "endDate": "2026-09-02",
-  "rowCount": 13394,
+  "endDate": "2026-09-05",
+  "rowCount": 13397,
   "paddedDays": 0,
   "fetchMode": "incremental",
   "yearsFetched": [
